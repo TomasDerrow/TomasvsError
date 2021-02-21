@@ -1,7 +1,7 @@
 import pygame
 import os
 import time
-#HW - Scrolling background and try to make jump more smooth using article in lesson 5 email
+#HW - Watch 14min video make sure everything matches up, enemy character/obstacle design, think of ideas for them
 pygame.init()
 WIDTH, HEIGHT = 900, 500
 pygame.display.set_caption("Tomas vs Error")
@@ -11,12 +11,20 @@ FLOOR = pygame.Rect(0, HEIGHT-50, WIDTH, 50)
 vel = 5
 #pygame.Surface.set_colorkey(KNIGHT_IMAGE, [255,255,255])
 KNIGHT_WIDTH, KNIGHT_HEIGHT = 75, 67
-knight = pygame.Rect(0, 0, KNIGHT_WIDTH, KNIGHT_HEIGHT)
+knight = pygame.Rect(WIDTH/2 - KNIGHT_WIDTH, 0, KNIGHT_WIDTH, KNIGHT_HEIGHT)
 KNIGHT_IMAGE = pygame.image.load(os.path.join('Assets', 'Character.png'))
 KNIGHT_IMAGE_SCALED = pygame.transform.scale(KNIGHT_IMAGE, (KNIGHT_WIDTH, KNIGHT_HEIGHT))
 pygame.Surface.set_colorkey(KNIGHT_IMAGE_SCALED, [246,246,246])
 BACKGROUND = pygame.image.load(os.path.join('Assets', 'Background2.png'))
 BACKGROUND_IMAGE_SCALED = pygame.transform.scale(BACKGROUND, (WIDTH, HEIGHT))
+bgWidth, bgHeight = BACKGROUND_IMAGE_SCALED.get_rect().size
+stageWidth = bgWidth*2
+stagePosX = 0
+startScrollingPosX = (WIDTH / 2)
+
+playerPosX = knight.x
+#playerPosY = 500
+playerVelocityX = 0
 FLOOR1 = pygame.image.load(os.path.join('Assets', 'Floor.png'))
 FLOOR1_IMAGE_SCALED = pygame.transform.scale(FLOOR1, (900, 400))
 global x
@@ -28,17 +36,40 @@ global JUMPING
 JUMPING = False
 
 
-def handle_movement(keys_pressed, knight):
+def handle_movement(keys_pressed, knight, playerPosX, playerVelocityX, stagePosX):
     global JUMPING
-    if keys_pressed[pygame.K_a] and knight.x - vel > 0:
-        knight.x -= vel
+    if keys_pressed[pygame.K_a]:
+        playerVelocityX = -5
     # LEFT
     if keys_pressed[pygame.K_d]:
-        knight.x += vel
+        playerVelocityX = 5
     #RIGHT
     if keys_pressed[pygame.K_SPACE] and JUMPING == False:
         JUMPING = True
         knight.y -= 100
+    else:
+        playerVelocityX = 0
+    playerPosX += playerVelocityX
+    print(playerPosX)
+    if playerPosX > stageWidth - knight.x:
+          playerPosX = stageWidth - knight.x
+          print("1")
+    if playerPosX < knight.x:
+          playerPosX = knight.x
+          print("2")
+    if playerPosX < startScrollingPosX:
+          knight.x = playerPosX
+          print("3")
+    elif playerPosX > stageWidth - startScrollingPosX:
+          knight.x = playerPosX - stageWidth + WIDTH
+          print("4")
+    else:
+          knight.x = startScrollingPosX
+          stagePosX += -playerVelocityX
+          print("5")
+
+
+
         #while x < 200:
             #current_frame += 1
             #knight.y -= 1
@@ -73,7 +104,7 @@ def main():
                 run = False
 
         keys_pressed = pygame.key.get_pressed()
-        handle_movement(keys_pressed, knight)
+        handle_movement(keys_pressed, knight, playerPosX, playerVelocityX, stagePosX)
         draw_window()
 
     pygame.quit()
@@ -81,7 +112,7 @@ def main():
 #drawing all assets
 def draw_window():
     global x
-    rel_x = x % BACKGROUND_IMAGE_SCALED.get_rect().width
+    rel_x = stagePosX % BACKGROUND_IMAGE_SCALED.get_rect().width
     #WIN.fill((52,192,235))
     WIN.blit(BACKGROUND_IMAGE_SCALED, (rel_x - BACKGROUND_IMAGE_SCALED.get_rect().width,0))
     if rel_x < WIDTH:
