@@ -1,7 +1,7 @@
 import pygame
 import os
 import time
-#HW - Watch 14min video make sure everything matches up, enemy character/obstacle design, think of ideas for them
+#HW - Make background checks work, think of ideas for enemies, make it look like their walking, make background seamless
 pygame.init()
 WIDTH, HEIGHT = 900, 500
 pygame.display.set_caption("Tomas vs Error")
@@ -9,64 +9,76 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 FPS = 60
 FLOOR = pygame.Rect(0, HEIGHT-50, WIDTH, 50)
 vel = 5
+global at500
+at500 = False
 #pygame.Surface.set_colorkey(KNIGHT_IMAGE, [255,255,255])
 KNIGHT_WIDTH, KNIGHT_HEIGHT = 75, 67
+ENEMY_WIDTH, ENEMY_HEIGHT = 100, 100
 knight = pygame.Rect(WIDTH/2 - KNIGHT_WIDTH, 0, KNIGHT_WIDTH, KNIGHT_HEIGHT)
 KNIGHT_IMAGE = pygame.image.load(os.path.join('Assets', 'Character.png'))
 KNIGHT_IMAGE_SCALED = pygame.transform.scale(KNIGHT_IMAGE, (KNIGHT_WIDTH, KNIGHT_HEIGHT))
-pygame.Surface.set_colorkey(KNIGHT_IMAGE_SCALED, [246,246,246])
+ENEMY_IMAGE = pygame.image.load(os.path.join('Assets', 'enemy.png'))
+ENEMY_IMAGE_SCALED = pygame.transform.scale(ENEMY_IMAGE, (ENEMY_WIDTH, ENEMY_HEIGHT))
+enemy = pygame.Rect(WIDTH/2 - ENEMY_WIDTH, 0, ENEMY_WIDTH, ENEMY_HEIGHT)
+#Background scrolling
 BACKGROUND = pygame.image.load(os.path.join('Assets', 'Background2.png'))
 BACKGROUND_IMAGE_SCALED = pygame.transform.scale(BACKGROUND, (WIDTH, HEIGHT))
 bgWidth, bgHeight = BACKGROUND_IMAGE_SCALED.get_rect().size
+
 stageWidth = bgWidth*2
 stagePosX = 0
+
 startScrollingPosX = (WIDTH / 2)
 
-playerPosX = knight.x
+halfW = 37.5
+knightPosX = halfW
+
+global playerPosX
+playerPosX = halfW
 #playerPosY = 500
 playerVelocityX = 0
+
 FLOOR1 = pygame.image.load(os.path.join('Assets', 'Floor.png'))
 FLOOR1_IMAGE_SCALED = pygame.transform.scale(FLOOR1, (900, 400))
 global x
 x = 0
-
-#TREE = pygame.image.load(os.path.join('Assets', 'Tree.png'))
-#TREE_IMAGE_SCALED = pygame.transform.scale(TREE, (200, 200))
 global JUMPING
 JUMPING = False
 
 
-def handle_movement(keys_pressed, knight, playerPosX, playerVelocityX, stagePosX):
+def handle_movement(keys_pressed, knight, playerVelocityX, stagePosX):
     global JUMPING
-    if keys_pressed[pygame.K_a]:
+    global playerPosX
+    if pygame.key.get_pressed()[pygame.K_a]:
         playerVelocityX = -5
     # LEFT
-    if keys_pressed[pygame.K_d]:
+    elif pygame.key.get_pressed()[pygame.K_d]:
         playerVelocityX = 5
     #RIGHT
-    if keys_pressed[pygame.K_SPACE] and JUMPING == False:
+    if pygame.key.get_pressed()[pygame.K_SPACE] and JUMPING == False:
         JUMPING = True
-        knight.y -= 100
-    else:
-        playerVelocityX = 0
+        knight.y -= 150
+
     playerPosX += playerVelocityX
-    print(playerPosX)
-    if playerPosX > stageWidth - knight.x:
-          playerPosX = stageWidth - knight.x
-          print("1")
+
+    #if playerPosX > stageWidth - knight.x:
+          #playerPosX = stageWidth - knight.x
+         #print("1")
     if playerPosX < knight.x:
-          playerPosX = knight.x
+          #print(knight.x)
+          #print(playerPosX)
+          playerPosX = 0
           print("2")
-    if playerPosX < startScrollingPosX:
-          knight.x = playerPosX
-          print("3")
-    elif playerPosX > stageWidth - startScrollingPosX:
-          knight.x = playerPosX - stageWidth + WIDTH
-          print("4")
-    else:
-          knight.x = startScrollingPosX
-          stagePosX += -playerVelocityX
-          print("5")
+    # if playerPosX < startScrollingPosX:
+    #       knight.x = playerPosX
+    #       print("3")
+    # elif playerPosX > stageWidth - startScrollingPosX:
+    #       knight.x = playerPosX - stageWidth + WIDTH
+    #       print("4")
+    # else:
+    #       knight.x = startScrollingPosX
+    #       stagePosX += -playerVelocityX
+    #       print("5")
 
 
 
@@ -83,6 +95,23 @@ def handle_movement(keys_pressed, knight, playerPosX, playerVelocityX, stagePosX
       #if keys_pressed[pygame.K_s] :
          # knight.y += vel
       # DOWN
+
+
+def enemyMovement(enemy):
+    global at500
+    velocity = 2
+
+    #totalMoved = 0
+    if enemy.x < 500 and at500 == False:
+        enemy.x += velocity
+        #totalMoved += velocity
+    elif enemy.x > 50:
+        enemy.x -= velocity
+        at500 = True
+    else:
+        at500 = False
+
+
 
 #game loop
 def main():
@@ -104,8 +133,9 @@ def main():
                 run = False
 
         keys_pressed = pygame.key.get_pressed()
-        handle_movement(keys_pressed, knight, playerPosX, playerVelocityX, stagePosX)
+        handle_movement(keys_pressed, knight, playerVelocityX, stagePosX)
         draw_window()
+        enemyMovement(enemy)
 
     pygame.quit()
 
@@ -119,8 +149,9 @@ def draw_window():
         WIN.blit(BACKGROUND_IMAGE_SCALED, (rel_x, 0))
     x -= 1
     pygame.draw.rect(WIN, (66,245,84), FLOOR)
-    WIN.blit(KNIGHT_IMAGE_SCALED, (knight.x, knight.y))
+    WIN.blit(KNIGHT_IMAGE_SCALED, (playerPosX, knight.y))
     WIN.blit(FLOOR1_IMAGE_SCALED, (0, 130))
+    WIN.blit(ENEMY_IMAGE_SCALED, (enemy.x, HEIGHT - FLOOR.height - ENEMY_HEIGHT))
 
     #WIN.blit(TREE_IMAGE_SCALED, (10, FLOOR.y - 200))
     pygame.display.update()
