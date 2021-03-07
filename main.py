@@ -1,7 +1,7 @@
 import pygame
 import os
 import time
-#HW - Make background checks work, think of ideas for enemies, make it look like their walking, make background seamless
+#HW - fix scrolling background, try to figure out walking animation
 pygame.init()
 WIDTH, HEIGHT = 900, 500
 pygame.display.set_caption("Tomas vs Error")
@@ -78,22 +78,23 @@ def handle_movement(keys_pressed, knight, playerVelocityX):
     playerPosX += playerVelocityX
 
     if playerPosX > stageWidth - halfW:
-         playerPosX = stageWidth - halfW
-         #makes right boundary
+         knightPosX = stageWidth - halfW
     if playerPosX < 0:
           playerPosX = 0
           #makes left boundary
-    if playerPosX < startScrollingPosX:
+    if playerPosX < startScrollingPosX - knight.width:
           knightPosX = playerPosX
+          print("here1")
           #if the screen doesn't need to scroll then the knight can move freely
     elif playerPosX > stageWidth - startScrollingPosX:
           knightPosX = playerPosX - stageWidth + WIDTH
-          #print("here2")
+          print("here2")
+          #right boundary
     else:
           knightPosX = startScrollingPosX
-          stagePosX += -1
-          print("here12")
-          print(stagePosX)
+          stagePosX += playerVelocityX
+          #print("here12")
+          #print(stagePosX)
 
 #rel_x = stagePosX % bgWidth
 #WIN.blit(BACKGROUND_IMAGE_SCALED, (rel_x - bgWidth, 0))
