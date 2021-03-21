@@ -1,7 +1,7 @@
 import pygame
 import os
 import time
-#HW - fix scrolling background, try to figure out walking animation
+#HW - clean up code, use the guy's code as insparation for walking animation
 pygame.init()
 WIDTH, HEIGHT = 900, 500
 pygame.display.set_caption("Tomas vs Error")
@@ -11,6 +11,8 @@ FLOOR = pygame.Rect(0, HEIGHT-50, WIDTH, 50)
 vel = 5
 global at500
 at500 = False
+global walkCount
+walkCount = 0
 #pygame.Surface.set_colorkey(KNIGHT_IMAGE, [255,255,255])
 
 KNIGHT_WIDTH, KNIGHT_HEIGHT = 75, 67
@@ -18,16 +20,26 @@ ENEMY_WIDTH, ENEMY_HEIGHT = 100, 100
 knight = pygame.Rect(WIDTH/2 - KNIGHT_WIDTH, 0, KNIGHT_WIDTH, KNIGHT_HEIGHT)
 
 
-KNIGHT_IMAGE1 = pygame.image.load(os.path.join('Assets', 'Default_Character1.png'))
-KNIGHT_IMAGE2 = pygame.image.load(os.path.join('Assets', 'Default_Character2.png'))
-KNIGHT_IMAGE_FLIPPED1 = pygame.image.load(os.path.join('Assets', 'Default_Character_Flipped1.png'))
-KNIGHT_IMAGE_FLIPPED2 = pygame.image.load(os.path.join('Assets', 'Default_Character_Flipped2.png'))
+KNIGHT1 = pygame.image.load(os.path.join('Assets', 'Default_Character1.png'))
+KNIGHT2 = pygame.image.load(os.path.join('Assets', 'Default_Character2.png'))
+KNIGHT3 = pygame.image.load(os.path.join('Assets', 'Default_Character3.png'))
+KNIGHT4 = pygame.image.load(os.path.join('Assets', 'Default_Character4.png'))
 
-global KNIGHT_IMAGE_SCALED1
-KNIGHT_IMAGE_SCALED1 = pygame.transform.scale(KNIGHT_IMAGE1, (KNIGHT_WIDTH, KNIGHT_HEIGHT))
-KNIGHT_IMAGE_SCALED2 = pygame.transform.scale(KNIGHT_IMAGE2, (KNIGHT_WIDTH, KNIGHT_HEIGHT))
-KNIGHT_IMAGE_FLIPPED_SCALED1 = pygame.transform.scale(KNIGHT_IMAGE_FLIPPED1, (KNIGHT_WIDTH, KNIGHT_HEIGHT))
-KNIGHT_IMAGE_FLIPPED_SCALED2 = pygame.transform.scale(KNIGHT_IMAGE_FLIPPED2, (KNIGHT_WIDTH, KNIGHT_HEIGHT))
+KNIGHTf1 = pygame.image.load(os.path.join('Assets', 'Default_Character_Flipped1.png'))
+KNIGHTf2 = pygame.image.load(os.path.join('Assets', 'Default_Character_Flipped2.png'))
+KNIGHTf3 = pygame.image.load(os.path.join('Assets', 'Default_Character_Flipped3.png'))
+KNIGHTf4 = pygame.image.load(os.path.join('Assets', 'Default_Character_Flipped4.png'))
+
+
+KNIGHTs1 = pygame.transform.scale(KNIGHT1, (KNIGHT_WIDTH, KNIGHT_HEIGHT))
+KNIGHTs2 = pygame.transform.scale(KNIGHT2, (KNIGHT_WIDTH, KNIGHT_HEIGHT))
+KNIGHTs3 = pygame.transform.scale(KNIGHT3, (KNIGHT_WIDTH, KNIGHT_HEIGHT))
+KNIGHTs4 = pygame.transform.scale(KNIGHT4, (KNIGHT_WIDTH, KNIGHT_HEIGHT))
+
+KNIGHTfs1 = pygame.transform.scale(KNIGHTf1, (KNIGHT_WIDTH, KNIGHT_HEIGHT))
+KNIGHTfs2 = pygame.transform.scale(KNIGHTf2, (KNIGHT_WIDTH, KNIGHT_HEIGHT))
+KNIGHTfs3 = pygame.transform.scale(KNIGHTf3, (KNIGHT_WIDTH, KNIGHT_HEIGHT))
+KNIGHTfs4 = pygame.transform.scale(KNIGHTf4, (KNIGHT_WIDTH, KNIGHT_HEIGHT))
 
 
 ENEMY_IMAGE = pygame.image.load(os.path.join('Assets', 'enemy.png'))
@@ -62,53 +74,69 @@ global x
 x = 0
 global JUMPING
 JUMPING = False
-global left
-left = False
 
-walkleft = [KNIGHT_IMAGE_FLIPPED_SCALED1, KNIGHT_IMAGE_FLIPPED_SCALED2]
-walkright = [KNIGHT_IMAGE_SCALED1, KNIGHT_IMAGE_SCALED2]
+global LEFT
+LEFT = False
+global RIGHT
+RIGHT = True
+global STILL
+STILL = True
+global middle
+middle = False
+global end
+end = False
+walkLeft = [KNIGHTfs1, KNIGHTfs2, KNIGHTfs3, KNIGHTfs4]
+walkRight = [KNIGHTs1, KNIGHTs2, KNIGHTs3, KNIGHTs4]
 
-
+#class player(object):
+    #def __init__(self,x,y,width,height):
+        #self.x = kX
+        #self.y = kY
+        #self.width = kWidth
+        #self.height = kHeight
+        #self.walkCount = 0
 
 def handle_movement(keys_pressed, knight, playerVelocityX):
     global JUMPING
     global playerPosX
     global stagePosX
     global knightPosX
-
-
+    global LEFT
+    global RIGHT
+    global STILL
+    global middle
+    global end
     #global playerPosY
 
     if pygame.key.get_pressed()[pygame.K_a]:
         playerVelocityX = -5
         LEFT = True
         RIGHT = False
-        #var = WIN.blit(KNIGHT_IMAGE_FLIPPED_SCALED1, (100, 100))
-        #KNIGHT_IMAGE_SCALED1.fill(transparent)
-        #move back a level
-        #global KNIGHT_IMAGE
-        #KNIGHT_IMAGE2 = pygame.image.load(os.path.join('Assets', 'Default_Character_Flipped.png'))
-        #knight1 = WIN.blit(KNIGHT_IMAGE2, (knight.x, knight.y))
-        #if knight1:
-        #    print("here3")
-        #global left
-        #left = True
-    # LEFT
+        STILL = False
+
     elif pygame.key.get_pressed()[pygame.K_d]:
         playerVelocityX = 5
         LEFT = False
         RIGHT = True
+        STILL = False
         #KNIGHT_IMAGE = pygame.image.load(os.path.join('Assets', 'Default_Character.png'))
     #RIGHT
+    else:
+        STILL = True
+        walkCount = 0
+
     if pygame.key.get_pressed()[pygame.K_SPACE] and JUMPING == False:
         JUMPING = True
         knight.y -= 150
 
+
+
     playerPosX += playerVelocityX
 
-    if playerPosX > stageWidth - halfW:
-         playerPosX = stageWidth - halfW
+    if playerPosX > stageWidth:
+         playerPosX = stageWidth
          #makes right boundary
+
     if playerPosX < 0:
           playerPosX = 0
           #makes left boundary
@@ -117,15 +145,17 @@ def handle_movement(keys_pressed, knight, playerVelocityX):
          # print("here1")
           #if the screen doesn't need to scroll then the knight can move freely
     elif playerPosX > stageWidth - startScrollingPosX:
-          knightPosX = playerPosX - stageWidth + WIDTH
+          knightPosX = playerPosX - stageWidth + WIDTH - knight.width
+          end = True
           #playerPosX = stageWidth + WIDTH
           #print("here12")
           #right boundary
     else:
           #playerPosX = startScrollingPosX - knight.width
-          knightPosX = startScrollingPosX
+          knightPosX = startScrollingPosX - knight.width
 
           stagePosX += playerVelocityX
+          middle = True
           #print("here123")
           #print(stagePosX)
 
@@ -194,27 +224,14 @@ def main():
     pygame.quit()
 
 #drawing all assets
-RIGHT = True
-LEFT = False
 def draw_window():
-    #global left
-    #KNIGHT_IMAGE_FLIPPED = pygame.image.load(os.path.join('Assets', 'Default_Character_Flipped.png'))
-    #if left == True:
-    #    WIN.blit(KNIGHT_IMAGE_FLIPPED, (100,100))
-
-        #global KNIGHT_IMAGE
-        #KNIGHT_IMAGE2 = pygame.image.load(os.path.join('Assets', 'Default_Character_Flipped.png'))
-        #knight1 = WIN.blit(KNIGHT_IMAGE2, (knight.x, knight.y))
-        #if knight1:
-        #    print("here3")
-        #global left
-        #left = True
-    # LEFT
-        #KNIGHT_IMAGE = pygame.image.load(os.path.join('Assets', 'Default_Character.png'))
-    #RIGHT
+    global LEFT
+    global RIGHT
+    global walkCount
+    global STILL
     global x
-    global KNIGHT_IMAGE1
-    global KNIGHT_IMAGE_SCALED1
+    global middle
+
 
     rel_x = stagePosX % BACKGROUND_IMAGE_SCALED.get_rect().width
     WIN.fill((52,192,235))
@@ -225,21 +242,56 @@ def draw_window():
     pygame.draw.rect(WIN, (66,245,84), FLOOR)
     #WIN.blit(KNIGHT_IMAGE_SCALED1, (playerPosX, knight.y))
     WIN.blit(ENEMY_IMAGE_SCALED, (enemy.x, HEIGHT - FLOOR.height - ENEMY_HEIGHT))
-    WIN.blit(FLOOR1_IMAGE_SCALED, (0, 130))
 
-    #WIN.blit(KNIGHT_IMAGE_SCALED1, (100, 100))
-    #WIN.blit(KNIGHT_IMAGE_SCALED2, (100, 200))
-    #WIN.blit(KNIGHT_IMAGE_FLIPPED_SCALED1, (100, 300))
-    #WIN.blit(KNIGHT_IMAGE_FLIPPED_SCALED2, (100, 400))
-    #WIN.blit(TREE_IMAGE_SCALED, (10, FLOOR.y - 200))
-    if LEFT:
-        WIN.blit(walkleft[0], (playerPosX, knight.y))
-    elif RIGHT:
-        WIN.blit(walkright[0], (playerPosX, knight.y))
+    if walkCount + 1 >= 30:
+        walkCount = 0
+    if not(STILL):
+        if LEFT:
+            WIN.blit(walkLeft[walkCount//10], (knightPosX, knight.y))
+            walkCount += 1
+        elif RIGHT:
+            WIN.blit(walkRight[walkCount//10], (knightPosX, knight.y))
+            walkCount += 1
+    else:
+        if RIGHT:
+            WIN.blit(walkRight[0], (knightPosX, knight.y))
+        elif LEFT:
+            WIN.blit(walkLeft[0], (knightPosX, knight.y))
 
-        #print("2")
     if pygame.key.get_pressed()[pygame.K_SPACE] and JUMPING == False:
         print("3")
+    WIN.blit(FLOOR1_IMAGE_SCALED, (0, 130))
+
+    #WIN.blit(KNIGHTfs1, (100, 100))
+    #WIN.blit(KNIGHTfs2, (100, 200))
+    #WIN.blit(KNIGHTfs3, (100, 300))
+    #WIN.blit(KNIGHTfs4, (100, 400))
+    #WIN.blit(KNIGHTs1, (200, 100))
+    #WIN.blit(KNIGHTs2, (200, 200))
+    #WIN.blit(KNIGHTs3, (200, 300))
+    #WIN.blit(KNIGHTs4, (200, 400))
+
+    pygame.font.init()
+    myfont = pygame.font.SysFont('Comic Sans MS', 30)
+    textsurface = myfont.render("Playerposx: " + str(playerPosX) + " knightposx: " + str(knightPosX) + "stagePosX" + str(stagePosX), False, (0, 0, 0))
+    WIN.blit(textsurface,(0,100))
+
+    if middle:
+        pygame.font.init()
+        myfont = pygame.font.SysFont('Comic Sans MS', 30)
+        textsurface = myfont.render("reached middle", False, (0, 0, 0))
+        WIN.blit(textsurface,(0,50))
+
+    if end:
+        pygame.font.init()
+        myfont = pygame.font.SysFont('Comic Sans MS', 30)
+        textsurface = myfont.render("reached end", False, (0, 0, 0))
+        WIN.blit(textsurface,(100,50))
+    #else:
+        #print("else")
+
+
+
     pygame.display.update()
 if __name__ == "__main__":
     main()
