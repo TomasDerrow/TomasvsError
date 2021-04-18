@@ -13,6 +13,8 @@ global at500
 at500 = False
 global walkCount
 walkCount = 0
+global swingCount
+swingCount = 0
 
 global health
 health = 100
@@ -24,6 +26,7 @@ ENEMY_WIDTH, ENEMY_HEIGHT = 100, 100
 
 
 knight = pygame.Rect(WIDTH/2 - KNIGHT_WIDTH, 0, KNIGHT_WIDTH, KNIGHT_HEIGHT)
+global enemy
 enemy = pygame.Rect(WIDTH/2 - ENEMY_WIDTH, HEIGHT-FLOOR.height-ENEMY_HEIGHT, ENEMY_WIDTH, ENEMY_HEIGHT)
 
 
@@ -87,7 +90,8 @@ playerPosX = halfW
 #playerPosY = 500
 playerVelocityX = 0
 
-knightrect = pygame.Rect(playerPosX, knight.y, KNIGHT_WIDTH, KNIGHT_HEIGHT)
+global knightrect
+knightrect = pygame.Rect(knightPosX, knight.y, KNIGHT_WIDTH, KNIGHT_HEIGHT)
 
 global x
 x = 0
@@ -100,8 +104,14 @@ global RIGHT
 RIGHT = True
 global STILL
 STILL = True
+global Swinging
+Swinging = False
+global Blocking
+Blocking = False
+
 walkLeft = [KNIGHTfs1, KNIGHTfs2, KNIGHTfs3, KNIGHTfs4]
 walkRight = [KNIGHTs1, KNIGHTs2, KNIGHTs3, KNIGHTs4]
+swingRight = [KNIGHTsws1, KNIGHTsws2, KNIGHTsws3]
 
 #class player(object):
     #def __init__(self,x,y,width,height):
@@ -122,6 +132,7 @@ def handle_movement(keys_pressed, knight, playerVelocityX):
     global middle
     global end
     global health
+    global knightrect
     #global playerPosY
 
     if pygame.key.get_pressed()[pygame.K_a]:
@@ -144,6 +155,8 @@ def handle_movement(keys_pressed, knight, playerVelocityX):
     if pygame.key.get_pressed()[pygame.K_SPACE] and JUMPING == False:
         JUMPING = True
         knight.y -= 400
+
+
 
 
 
@@ -170,6 +183,9 @@ def handle_movement(keys_pressed, knight, playerVelocityX):
           knightPosX = startScrollingPosX - knight.width
 
           stagePosX += playerVelocityX
+
+    global knightrect
+    knightrect = pygame.Rect(knightPosX, knight.y, KNIGHT_WIDTH, KNIGHT_HEIGHT)
           #print("here123")
           #print(stagePosX)
 
@@ -229,20 +245,33 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    Swinging = True
+                    print("1")
+                if event.button == 3:
+                    Blocking = True
+                    print("2")
 
         keys_pressed = pygame.key.get_pressed()
         draw_window()
         handle_movement(keys_pressed, knight, playerVelocityX)
         enemyMovement(enemy)
-        handle_damage(knightrect, enemy)
+        handle_damage()
 
     pygame.quit()
 
-def handle_damage(knightrect, enemy):
+def handle_damage():
     global health
+    global enemyhealth
     global playerPosX
+    global knightrect
+    global enemy
     if knightrect.colliderect(enemy):
         health -=1
+    if enemy.colliderect(knightrect):
+        enemyhealth -= 1
+
 #drawing all assets
 def draw_window():
     global LEFT
@@ -269,11 +298,20 @@ def draw_window():
         elif RIGHT:
             WIN.blit(walkRight[walkCount//10], (knightPosX, knight.y))
             walkCount += 1
+
+    #elif not(Swinging) and not(Blocking):
+        #if Swinging:
+        #    WIN.blit(swingRight[swingCount], (knightPosX, knight.y))
+        #if Blocking:
+        #    WIN.blit(KNIGHTbs1, (knightPosX, knight.y))
     else:
         if RIGHT:
             WIN.blit(walkRight[0], (knightPosX, knight.y))
         elif LEFT:
             WIN.blit(walkLeft[0], (knightPosX, knight.y))
+
+
+
 
     if pygame.key.get_pressed()[pygame.K_SPACE] and JUMPING == False:
         print("3")
@@ -303,7 +341,7 @@ def draw_window():
     #WIN.blit(healthtext, (200,20))
     pygame.font.init()
     myfont2 = pygame.font.SysFont('Comic Sans MS', 30)
-    enemyhitbox = myfont.render("enemy.x: " + str(enemy.x) + " enemy.y: " + str(enemy.y) + " knight.x " + str(knightrect.x) + " knight.y " + str(knightrect.y), False, (0, 0, 0))
+    enemyhitbox = myfont.render("enemy.x: " + str(enemy.x) + " enemy.y: " + str(enemy.y) + " knightrect.x " + str(knightrect.x) + " knightrect.y " + str(knightrect.y), False, (0, 0, 0))
     WIN.blit(enemyhitbox,(0,100))
     healthtext = myfont.render(str(health), False, (0, 0, 0))
     #WIN.blit(healthtext, (200,20))
@@ -312,8 +350,8 @@ def draw_window():
     player1healthbar = pygame.draw.rect(WIN, (255, 52, 25), (10, 10, health*2 , 40))
     enemy1healthbar = pygame.draw.rect(WIN, (255, 52, 25), (WIDTH-210, 10, enemyhealth*2 , 40))
 
-    pygame.draw.rect(WIN, (100, 100, 100), (playerPosX, knight.y, KNIGHT_WIDTH, KNIGHT_HEIGHT))
-    pygame.draw.rect(WIN, (100, 100, 100), (enemy.x, enemy.y, ENEMY_WIDTH, ENEMY_HEIGHT))
+    #pygame.draw.rect(WIN, (100, 100, 100), (knightPosX, knight.y, KNIGHT_WIDTH, KNIGHT_HEIGHT))
+    #pygame.draw.rect(WIN, (100, 100, 100), (enemy.x, enemy.y, ENEMY_WIDTH, ENEMY_HEIGHT))
 
     #WIN.blit(knightrect)
     #else:
