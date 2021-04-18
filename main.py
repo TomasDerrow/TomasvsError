@@ -1,8 +1,7 @@
 import pygame
 import os
 import time
-#HW - draw attack and defense animation for character and enemy, make seamless background, make healthbar in stages
-pygame.init()
+#HW - get animation for swinging and blocking to work, draw flipped blocking and swinging animations
 WIDTH, HEIGHT = 900, 500
 pygame.display.set_caption("Tomas vs Error")
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -15,6 +14,10 @@ global walkCount
 walkCount = 0
 global swingCount
 swingCount = 0
+global swingTrigger
+swingTrigger = False
+global blockTrigger
+blockTrigger = False
 
 global health
 health = 100
@@ -248,10 +251,14 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     Swinging = True
-                    print("1")
+                    swingTrigger = True
+                    handle_swing(swingTrigger)
+                    #print("1")
                 if event.button == 3:
                     Blocking = True
-                    print("2")
+                    blockTrigger = True
+                    handle_block(blockTrigger)
+                    #print("2")
 
         keys_pressed = pygame.key.get_pressed()
         draw_window()
@@ -272,6 +279,16 @@ def handle_damage():
     if enemy.colliderect(knightrect):
         enemyhealth -= 1
 
+def handle_swing(swingTrigger):
+    if swingTrigger:
+        WIN.blit(swingRight[swingCount], (knightPosX, knight.y))
+        print("adsa")
+
+def handle_block(blockTrigger):
+    if blockTrigger:
+        WIN.blit(KNIGHTbs1, (knightPosX, knight.y))
+        print("tyrt")
+
 #drawing all assets
 def draw_window():
     global LEFT
@@ -280,7 +297,10 @@ def draw_window():
     global STILL
     global x
     global middle
-
+    global Swinging
+    global Blocking
+    global swingTrigger
+    global blockTrigger
 
     rel_x = stagePosX % BACKGROUND_IMAGE_SCALED.get_rect().width
     WIN.blit(BACKGROUND_IMAGE_SCALED, (rel_x - BACKGROUND_IMAGE_SCALED.get_rect().width,0))
@@ -299,16 +319,16 @@ def draw_window():
             WIN.blit(walkRight[walkCount//10], (knightPosX, knight.y))
             walkCount += 1
 
-    #elif not(Swinging) and not(Blocking):
-        #if Swinging:
-        #    WIN.blit(swingRight[swingCount], (knightPosX, knight.y))
-        #if Blocking:
-        #    WIN.blit(KNIGHTbs1, (knightPosX, knight.y))
-    else:
+    elif STILL:
         if RIGHT:
             WIN.blit(walkRight[0], (knightPosX, knight.y))
         elif LEFT:
             WIN.blit(walkLeft[0], (knightPosX, knight.y))
+
+
+
+
+
 
 
 
