@@ -232,6 +232,9 @@ def enemyMovement(enemy):
 
 #game loop
 def main():
+    global swingTrigger
+    global blockTrigger
+    global swingCount
     run = True
     clock = pygame.time.Clock()
     while run:
@@ -252,13 +255,17 @@ def main():
                 if event.button == 1:
                     Swinging = True
                     swingTrigger = True
-                    handle_swing(swingTrigger)
-                    #print("1")
+                    #swingCount += 1
+                    #handle_swing(swingTrigger)
+                    #print("swingtrigger", swingTrigger)
                 if event.button == 3:
                     Blocking = True
                     blockTrigger = True
-                    handle_block(blockTrigger)
-                    #print("2")
+                    #handle_block(blockTrigger)
+                    #print("blocktrigger", blockTrigger)
+
+            else:
+                blockTrigger = False
 
         keys_pressed = pygame.key.get_pressed()
         draw_window()
@@ -280,14 +287,10 @@ def handle_damage():
         enemyhealth -= 1
 
 def handle_swing(swingTrigger):
-    if swingTrigger:
-        WIN.blit(swingRight[swingCount], (knightPosX, knight.y))
-        print("adsa")
+    pass
 
 def handle_block(blockTrigger):
-    if blockTrigger:
-        WIN.blit(KNIGHTbs1, (knightPosX, knight.y))
-        print("tyrt")
+    pass
 
 #drawing all assets
 def draw_window():
@@ -301,7 +304,7 @@ def draw_window():
     global Blocking
     global swingTrigger
     global blockTrigger
-
+    global swingCount
     rel_x = stagePosX % BACKGROUND_IMAGE_SCALED.get_rect().width
     WIN.blit(BACKGROUND_IMAGE_SCALED, (rel_x - BACKGROUND_IMAGE_SCALED.get_rect().width,0))
     if rel_x < WIDTH:
@@ -311,6 +314,7 @@ def draw_window():
 
     if walkCount + 1 >= 30:
         walkCount = 0
+
     if not(STILL):
         if LEFT:
             WIN.blit(walkLeft[walkCount//10], (knightPosX, knight.y))
@@ -319,17 +323,24 @@ def draw_window():
             WIN.blit(walkRight[walkCount//10], (knightPosX, knight.y))
             walkCount += 1
 
+    elif swingTrigger == True:
+        WIN.blit(swingRight[swingCount//3], (knightPosX, knight.y))
+        swingCount += 1
+        if swingCount//3 > 2:
+            swingCount = 0
+            swingTrigger = False
+
+    elif blockTrigger == True:
+        WIN.blit(KNIGHTbs1, (knightPosX, knight.y))
+
+        #blockTrigger = False
+        #print(blockTrigger, "b")
+
     elif STILL:
         if RIGHT:
             WIN.blit(walkRight[0], (knightPosX, knight.y))
         elif LEFT:
             WIN.blit(walkLeft[0], (knightPosX, knight.y))
-
-
-
-
-
-
 
 
 
