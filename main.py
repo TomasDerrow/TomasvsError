@@ -18,6 +18,10 @@ global swingTrigger
 swingTrigger = False
 global blockTrigger
 blockTrigger = False
+global enemyalive
+enemyalive = True
+global playeralive
+playeralive = True
 
 global health
 health = 100
@@ -281,16 +285,25 @@ def handle_damage():
     global playerPosX
     global knightrect
     global enemy
-    if knightrect.colliderect(enemy):
-        health -=1
-    if enemy.colliderect(knightrect):
+    global blockTrigger
+    global enemyalive
+    global playeralive
+
+    if knightrect.colliderect(enemy) and not blockTrigger:
+        health -= 10
+    if enemy.colliderect(knightrect) and swingTrigger:
         enemyhealth -= 1
 
-def handle_swing(swingTrigger):
-    pass
+    if health == 0:
+        print("player dead")
+        playeralive = False
+    if enemyhealth == 0:
+        enemy.x = 0
+        enemy.y = 5000
+        enemyalive = False
 
-def handle_block(blockTrigger):
-    pass
+
+
 
 #drawing all assets
 def draw_window():
@@ -305,12 +318,17 @@ def draw_window():
     global swingTrigger
     global blockTrigger
     global swingCount
+    global enemyalive
+    global playeralive
+
     rel_x = stagePosX % BACKGROUND_IMAGE_SCALED.get_rect().width
     WIN.blit(BACKGROUND_IMAGE_SCALED, (rel_x - BACKGROUND_IMAGE_SCALED.get_rect().width,0))
     if rel_x < WIDTH:
          WIN.blit(BACKGROUND_IMAGE_SCALED, (rel_x, 0))
     x -= 1
-    WIN.blit(ENEMY_IMAGE_SCALED, (enemy.x, HEIGHT - FLOOR.height - ENEMY_HEIGHT))
+
+    if enemyalive:
+        WIN.blit(ENEMY_IMAGE_SCALED, (enemy.x, HEIGHT - FLOOR.height - ENEMY_HEIGHT))
 
     if walkCount + 1 >= 30:
         walkCount = 0
@@ -365,7 +383,7 @@ def draw_window():
     #WIN.blit(KNIGHTsws2, (200, 300))
     #WIN.blit(KNIGHTsws3, (200, 400))
     pygame.font.init()
-    myfont = pygame.font.SysFont('Comic Sans MS', 30)
+    myfont = pygame.font.SysFont('Comic Sans MS', 50)
     positions = myfont.render("Playerposx: " + str(playerPosX) + " knightposx: " + str(knightPosX) + "stagePosX" + str(stagePosX), False, (0, 0, 0))
     #WIN.blit(positions,(0,100))
     healthtext = myfont.render(str(health), False, (0, 0, 0))
@@ -373,13 +391,23 @@ def draw_window():
     pygame.font.init()
     myfont2 = pygame.font.SysFont('Comic Sans MS', 30)
     enemyhitbox = myfont.render("enemy.x: " + str(enemy.x) + " enemy.y: " + str(enemy.y) + " knightrect.x " + str(knightrect.x) + " knightrect.y " + str(knightrect.y), False, (0, 0, 0))
-    WIN.blit(enemyhitbox,(0,100))
+    #WIN.blit(enemyhitbox,(0,100))
     healthtext = myfont.render(str(health), False, (0, 0, 0))
     #WIN.blit(healthtext, (200,20))
 
     # = pygame.draw.rect(surface, color, rect)
     player1healthbar = pygame.draw.rect(WIN, (255, 52, 25), (10, 10, health*2 , 40))
     enemy1healthbar = pygame.draw.rect(WIN, (255, 52, 25), (WIDTH-210, 10, enemyhealth*2 , 40))
+    deathtext = myfont.render("You died!", False, (255, 17, 0), )
+
+    text_width = deathtext.get_width()
+    text_height = deathtext.get_height()
+
+    if not playeralive:
+        pygame.draw.rect(WIN, (0, 0, 0), (0, 0, WIDTH, HEIGHT))
+        WIN.blit(deathtext, (WIDTH/2 - text_width/2, HEIGHT/2 - text_height/2))
+        #print (str(text_width))
+        #print (str(text_height))
 
     #pygame.draw.rect(WIN, (100, 100, 100), (knightPosX, knight.y, KNIGHT_WIDTH, KNIGHT_HEIGHT))
     #pygame.draw.rect(WIN, (100, 100, 100), (enemy.x, enemy.y, ENEMY_WIDTH, ENEMY_HEIGHT))
