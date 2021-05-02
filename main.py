@@ -1,7 +1,7 @@
 import pygame
 import os
 import time
-#HW - get animation for swinging and blocking to work, draw flipped blocking and swinging animations
+#HW - draw flipped blocking and swinging animations, be able to swing while walking
 WIDTH, HEIGHT = 900, 500
 pygame.display.set_caption("Tomas vs Error")
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -100,6 +100,9 @@ playerVelocityX = 0
 global knightrect
 knightrect = pygame.Rect(knightPosX, knight.y, KNIGHT_WIDTH, KNIGHT_HEIGHT)
 
+global enemyRange
+enemyRange = pygame.Rect(enemy.x, enemy.y, 500, 200)
+
 global x
 x = 0
 global JUMPING
@@ -188,7 +191,6 @@ def handle_movement(keys_pressed, knight, playerVelocityX):
     else:
           #playerPosX = startScrollingPosX - knight.width
           knightPosX = startScrollingPosX - knight.width
-
           stagePosX += playerVelocityX
 
     global knightrect
@@ -220,17 +222,25 @@ def handle_movement(keys_pressed, knight, playerVelocityX):
 
 def enemyMovement(enemy):
     global at500
+    global knight
     velocity = 2
+    rightOfKnight = True
+    leftOfKnight = False
+
+    if enemy.x > knight.x:
+        rightOfKnight = True
+    elif enemy.x < knight.x:
+        leftOfKnight = True
 
     #totalMoved = 0
-    if enemy.x < 500 and at500 == False:
-        enemy.x += velocity
+    #if enemy.x < 500 and at500 == False:
+        #enemy.x += velocity
         #totalMoved += velocity
-    elif enemy.x > 50:
-        enemy.x -= velocity
-        at500 = True
-    else:
-        at500 = False
+    #elif enemy.x > 50:
+        #enemy.x -= velocity
+        #at500 = True
+    #else:
+        #at500 = False
 
 
 
@@ -290,7 +300,7 @@ def handle_damage():
     global playeralive
 
     if knightrect.colliderect(enemy) and not blockTrigger:
-        health -= 10
+        health -= 0.1
     if enemy.colliderect(knightrect) and swingTrigger:
         enemyhealth -= 1
 
@@ -320,6 +330,7 @@ def draw_window():
     global swingCount
     global enemyalive
     global playeralive
+    global enemyRange
 
     rel_x = stagePosX % BACKGROUND_IMAGE_SCALED.get_rect().width
     WIN.blit(BACKGROUND_IMAGE_SCALED, (rel_x - BACKGROUND_IMAGE_SCALED.get_rect().width,0))
@@ -384,14 +395,14 @@ def draw_window():
     #WIN.blit(KNIGHTsws3, (200, 400))
     pygame.font.init()
     myfont = pygame.font.SysFont('Comic Sans MS', 50)
-    positions = myfont.render("Playerposx: " + str(playerPosX) + " knightposx: " + str(knightPosX) + "stagePosX" + str(stagePosX), False, (0, 0, 0))
+    #positions = myfont.render("Playerposx: " + str(playerPosX) + " knightposx: " + str(knightPosX) + "stagePosX" + str(stagePosX), False, (0, 0, 0))
     #WIN.blit(positions,(0,100))
     healthtext = myfont.render(str(health), False, (0, 0, 0))
     #WIN.blit(healthtext, (200,20))
     pygame.font.init()
     myfont2 = pygame.font.SysFont('Comic Sans MS', 30)
-    enemyhitbox = myfont.render("enemy.x: " + str(enemy.x) + " enemy.y: " + str(enemy.y) + " knightrect.x " + str(knightrect.x) + " knightrect.y " + str(knightrect.y), False, (0, 0, 0))
-    #WIN.blit(enemyhitbox,(0,100))
+    enemyhitbox = myfont2.render("enemy.x: " + str(enemy.x) + " enemy.y: " + str(enemy.y) + " knightrect.x " + str(knightrect.x) + " knightrect.y " + str(knightrect.y), False, (0, 0, 0))
+    WIN.blit(enemyhitbox,(0,100))
     healthtext = myfont.render(str(health), False, (0, 0, 0))
     #WIN.blit(healthtext, (200,20))
 
@@ -411,7 +422,7 @@ def draw_window():
 
     #pygame.draw.rect(WIN, (100, 100, 100), (knightPosX, knight.y, KNIGHT_WIDTH, KNIGHT_HEIGHT))
     #pygame.draw.rect(WIN, (100, 100, 100), (enemy.x, enemy.y, ENEMY_WIDTH, ENEMY_HEIGHT))
-
+    #pygame.draw.rect(WIN, (100, 100, 100), (enemy.x, enemy.y, 500, 200))
     #WIN.blit(knightrect)
     #else:
         #print("else")
