@@ -4,7 +4,8 @@ import time
 
 #HW: make same thing as we did for player, for the enemy, make method for enemyRange and other function, (loading images, animations), work on jump
 #HW do image load, try to fix it, maybe make new animation if you can't do anything else
-#HW change into loadImages
+
+#HW try to figure out why nothing is displaying
 WIDTH, HEIGHT = 900, 500
 pygame.display.set_caption("Tomas vs Error")
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -61,17 +62,17 @@ class Enemy(Character):
 
 #print statements for testing
 player = Player()
-print("player")
-print(player.walkCount)
-print(player.playerPosX)
-print("------------------------------")
+# print("player")
+# print(player.walkCount)
+# print(player.playerPosX)
+# print("------------------------------")
 enemy = Enemy()
-print("enemy")
-print(enemy.walkCount)
-print(enemy.at500)
-
-player.playerPosX += 100
-print(player.playerPosX)
+# print("enemy")
+# print(enemy.walkCount)
+# print(enemy.at500)
+#
+# player.playerPosX += 100
+# print(player.playerPosX)
 
 #loadimages
 knight1_right = player.loadImage('Assets', 'Default_Character1N.png', player.knight_width, player.knight_height)
@@ -190,6 +191,7 @@ def enemyMovement(enemyKnight):
 
 
 def main():
+    print("2")
     run = True
     clock = pygame.time.Clock()
     while run:
@@ -222,6 +224,7 @@ def main():
                 player.blockTrigger = False
 
         keys_pressed = pygame.key.get_pressed()
+        print("3")
         draw_window()
         handle_movement(keys_pressed, knight)
         enemyMovement(enemyKnight)
@@ -246,10 +249,13 @@ def handle_damage():
         enemy.alive = False
 
 def draw_window():
+    print("4")
     global x
 
     rel_x = player.stagePosX % BACKGROUND_IMAGE_SCALED.get_rect().width
+    print("5")
     WIN.blit(BACKGROUND_IMAGE_SCALED, (rel_x - BACKGROUND_IMAGE_SCALED.get_rect().width,0))
+    print("6")
     if rel_x < WIDTH:
          WIN.blit(BACKGROUND_IMAGE_SCALED, (rel_x, 0))
     x -= 1
@@ -329,4 +335,5 @@ def draw_window():
 
 
 if __name__ == "__main__":
+    print("1")
     main()
