@@ -162,6 +162,9 @@ enemy2.def_enemyRange()
 #HW - draw flipped blocking and swinging animations, be able to swing while walking
 
 
+###########################################################################
+
+
 KNIGHT_WIDTH, KNIGHT_HEIGHT = 75, 67
 ENEMY_WIDTH, ENEMY_HEIGHT = 100, 100
 
@@ -200,12 +203,16 @@ KNIGHTsws3 = pygame.transform.scale(KNIGHTsw3, (KNIGHT_WIDTH, KNIGHT_HEIGHT))
 
 KNIGHTbs1 = pygame.transform.scale(KNIGHTb1, (KNIGHT_WIDTH, KNIGHT_HEIGHT))
 
-BACKGROUND = pygame.image.load(os.path.join('Assets', 'Background2.png'))
-BACKGROUND_IMAGE_SCALED = pygame.transform.scale(BACKGROUND, (WIDTH, HEIGHT))
-bgWidth, bgHeight = BACKGROUND_IMAGE_SCALED.get_rect().size
-
 FLOOR1 = pygame.image.load(os.path.join('Assets', 'Floor.png'))
 FLOOR1_IMAGE_SCALED = pygame.transform.scale(FLOOR1, (900, 400))
+
+BACKGROUND = pygame.image.load(os.path.join('Assets', 'Background2.png'))
+BACKGROUND_IMAGE_SCALED = pygame.transform.scale(BACKGROUND, (WIDTH, HEIGHT))
+########################################################################
+
+bgWidth, bgHeight = BACKGROUND_IMAGE_SCALED.get_rect().size
+
+
 flWidth, flHeight = FLOOR1_IMAGE_SCALED.get_rect().size
 Character_Movements = [pygame.image.load(os.path.join('Assets', 'Default_Character1N.png')), pygame.image.load(os.path.join('Assets', 'Default_Character_Flipped1.png')), pygame.image.load(os.path.join('Assets', 'Default_Character2.png'))]
 
