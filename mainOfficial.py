@@ -4,10 +4,7 @@ import time
 
 '''
 HOMEWORK SECTION
-* make same thing as we did for player, for the enemy, make method for enemyRange and 
-    other function, (loading images, animations), work on jump
-* do image load, try to fix it, maybe make new animation if you can't do anything else
-* try to figure out why nothing is displaying
+* work on enemy, add more animations, be able to swing and block while moving
 '''
 
 # Screen Settings
@@ -121,7 +118,7 @@ knightSwing3_right = player.loadImage(
     'Assets', 'Default_Character_Swing3.png', player.knight_width, player.knight_height)
 
 knightBlock1_right = player.loadImage(
-    'Assets', 'Default_Character_Block1.png', 100, 100)
+    'Assets', 'Default_Character_Block1.png', player.knight_width, player.knight_height)
 
 enemy1_right = enemy.loadImage('Assets', 'enemy.png', 100, 100)
 
@@ -131,7 +128,7 @@ TODO: Can be defined in our loadImage method, may need to change though
 '''
 knightRect = pygame.Rect(player.knightPosX, 0,
                          player.knight_width, player.knight_height)
-knight = pygame.Rect(WIDTH/2 - player.knight_width, 0,
+knight = pygame.Rect(WIDTH/2 - player.knight_width, 450-player.knight_height,
                      player.knight_width, player.knight_height)
 
 enemyKnight = pygame.Rect(WIDTH/2 - enemy.enemy_width, HEIGHT-FLOOR.height -
@@ -158,40 +155,50 @@ def handle_movement(keys_pressed, knight):
     '''
     TODO: Add comments near if statements describing what is happening
     '''
+
     if pygame.key.get_pressed()[pygame.K_a]:
         player.velocity = -5
         player.left = True
         player.right = False
         player.still = False
-
+    #if press a move left
     elif pygame.key.get_pressed()[pygame.K_d]:
         player.velocity = 5
         player.left = False
         player.right = True
         player.still = False
-
+    #if press d move right
     else:
         player.still = True
         player.walkCount = 0
+        player.velocity = 0
 
     if not(player.jumping):
         if pygame.key.get_pressed()[pygame.K_SPACE]:
             player.jumping = True
             player.walkCount = 0
-
-    else:
+    #if press space jump
+    if player.jumping:
         print("jump2")
         if player.jumpCount >= -10:
             neg = 1
-            if player.jumpCount < 0:
+            if player.jumpCount <= 0:
                 neg = -1
-            player.y -= (man.jumpCount ** 2) * 0.5 * neg
+            # knight.y -= (player.jumpCount ** 2) * 0.5 * neg
+            knight.y -= (player.jumpCount ** 2) * 0.5 * neg
             player.jumpCount -= 1
         else:
-            player.isJump = False
+            player.jumping = False
             player.jumpCount = 10
-    # 1234
+            knight.y += 5
 
+    # 1234
+#jumpcount = 10, 9, 8, 7
+#knight.y = 100, 140.5, 172.5, 197
+
+
+
+# 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5, -6, -7 -8, -9, -10
     player.playerPosX += player.velocity
 
     if player.playerPosX > stageWidth:
@@ -241,12 +248,12 @@ def main():
         TODO: can you think of another place to move these if statements?
              May need to move
         '''
-        if knight.y > HEIGHT - FLOOR.height - player.knight_height:
+        #if knight.y > HEIGHT - FLOOR.height - player.knight_height:
             # checking if knight is on ground
-            player.jumping = False
-        if knight.y < HEIGHT - FLOOR.height - player.knight_height:
+            #player.jumping = False
+        #if knight.y < HEIGHT - FLOOR.height - player.knight_height:
             # if knight is on ground dont apply gravity
-            knight.y += 5
+            #knight.y += 5
 
             #print(HEIGHT - FLOOR.y)
         clock.tick(FPS)
@@ -339,7 +346,7 @@ def draw_window():
             player.swingTrigger = False
 
     elif player.blockTrigger == True:
-        WIN.blit(KNIGHTbs1, (player.knightPosX, knight.y))
+        WIN.blit(knightBlock1_right, (player.knightPosX, knight.y))
 
         #blockTrigger = False
         #print(blockTrigger, "b")
@@ -360,7 +367,7 @@ def draw_window():
 
     '''
     TODO: Create a separate function that displays text
-    something like 
+    something like
     i.e. def renderText(text, posX, posY)
     '''
 
@@ -368,8 +375,8 @@ def draw_window():
     myfont = pygame.font.SysFont('Comic Sans MS', 50)
     #positions = myfont.render("Playerposx: " + str(playerPosX) + " knightposx: " + str(knightPosX) + "stagePosX" + str(stagePosX), False, (0, 0, 0))
     # WIN.blit(positions,(0,100))
-    healthtext = myfont.render(str(player.health), False, (0, 0, 0))
-    #WIN.blit(healthtext, (200,20))
+    healthtext = myfont.render(str(knight.y), False, (0, 0, 0))
+    WIN.blit(healthtext, (200,20))
     pygame.font.init()
     myfont2 = pygame.font.SysFont('Comic Sans MS', 30)
     #enemyhitbox = myfont2.render("enemy.x: " + str(enemyKnight.x) + " enemy.y: " + str(enemyKnight.y) + " knightrect.x " + str(knightrect.x) + " knightrect.y " + str(knightrect.y), False, (0, 0, 0))
@@ -391,7 +398,7 @@ def draw_window():
         check if health is <= 0
         also this check should be in the handle_damage function
     '''
-    if not player.alive:
+    if player.health <= 0:
         pygame.draw.rect(WIN, (0, 0, 0), (0, 0, WIDTH, HEIGHT))
         WIN.blit(deathtext, (WIDTH/2 - text_width/2, HEIGHT/2 - text_height/2))
 
