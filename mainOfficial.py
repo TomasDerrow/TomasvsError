@@ -120,6 +120,16 @@ knightSwing3_right = player.loadImage(
 knightBlock1_right = player.loadImage(
     'Assets', 'Default_Character_Block1.png', player.knight_width, player.knight_height)
 
+knightSwing1_left = player.loadImage(
+    'Assets', 'Default_Character_Swing_Flipped1.png', player.knight_width, player.knight_height)
+knightSwing2_left = player.loadImage(
+    'Assets', 'Default_Character_Swing_Flipped2.png', player.knight_width, player.knight_height)
+knightSwing3_left = player.loadImage(
+    'Assets', 'Default_Character_Swing_Flipped3.png', player.knight_width, player.knight_height)
+
+knightBlock1_left = player.loadImage(
+    'Assets', 'Default_Character_Block_Flipped1.png', player.knight_width, player.knight_height)
+
 enemy1_right = enemy.loadImage('Assets', 'enemy.png', 100, 100)
 
 # Rectangles defined
@@ -146,6 +156,8 @@ Character_Movements = [
 # Lists defined
 walkLeft = [knight1_left, knight2_left, knight3_left, knight4_left]
 walkRight = [knight1_right, knight2_right, knight3_right, knight4_right]
+
+swingLeft = [knightSwing1_left, knightSwing2_left, knightSwing3_left]
 swingRight = [knightSwing1_right, knightSwing2_right, knightSwing3_right]
 
 # functions
@@ -315,6 +327,10 @@ def draw_window():
         WIN.blit(BACKGROUND_IMAGE_SCALED, (rel_x, 0))
     x -= 1
 
+    WIN.blit(knightBlock1_left, (100, 100))
+    WIN.blit(knightSwing1_left, (200, 100))
+    WIN.blit(knightSwing2_left, (300, 100))
+    WIN.blit(knightSwing3_left, (400, 100))
     # if player.alive:
     # print("hi")
 
@@ -338,16 +354,29 @@ def draw_window():
             player.walkCount += 1
 
     elif player.swingTrigger == True:
-        WIN.blit(swingRight[player.swingCount//3],
-                 (player.knightPosX, knight.y))
-        player.swingCount += 1
-        if player.swingCount//3 > 2:
-            player.swingCount = 0
-            player.swingTrigger = False
+        if player.left:
+            print("asdasdw")
+            WIN.blit(swingLeft[player.swingCount//3],
+                     (player.knightPosX, knight.y))
+            player.swingCount += 1
+            if player.swingCount//3 > 2:
+                player.swingCount = 0
+                player.swingTrigger = False
+        elif player.right:
+            print("right")
+            WIN.blit(swingRight[player.swingCount//3],
+                     (player.knightPosX, knight.y))
+            player.swingCount += 1
+            if player.swingCount//3 > 2:
+                player.swingCount = 0
+                player.swingTrigger = False
+
 
     elif player.blockTrigger == True:
-        WIN.blit(knightBlock1_right, (player.knightPosX, knight.y))
-
+        if player.right:
+            WIN.blit(knightBlock1_right, (player.knightPosX, knight.y))
+        elif player.left:
+            WIN.blit(knightBlock1_left, (player.knightPosX, knight.y))
         #blockTrigger = False
         #print(blockTrigger, "b")
 
@@ -401,6 +430,7 @@ def draw_window():
     if player.health <= 0:
         pygame.draw.rect(WIN, (0, 0, 0), (0, 0, WIDTH, HEIGHT))
         WIN.blit(deathtext, (WIDTH/2 - text_width/2, HEIGHT/2 - text_height/2))
+
 
 
 if __name__ == "__main__":
