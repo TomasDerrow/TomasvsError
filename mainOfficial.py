@@ -4,7 +4,8 @@ import time
 
 '''
 HOMEWORK SECTION
-* work on enemy, add more animations, be able to swing and block while moving
+* work on
+, add more animations, be able to swing and block while moving
 '''
 
 # Screen Settings
@@ -73,6 +74,8 @@ class Enemy(Character):
         self.at500 = False
         self.enemy_width = 100
         self.enemy_height = 100
+        self.enemy_left = True
+        self.enemy_right = False
 
         Character.__init__(self)
 
@@ -143,6 +146,8 @@ knight = pygame.Rect(WIDTH/2 - player.knight_width, 450-player.knight_height,
 
 enemyKnight = pygame.Rect(WIDTH/2 - enemy.enemy_width, HEIGHT-FLOOR.height -
                           enemy.enemy_height, enemy.enemy_width, enemy.enemy_height)
+
+
 enemyRange = pygame.Rect(enemyKnight.x, enemyKnight.y, 500, 200)
 
 
@@ -235,21 +240,21 @@ def handle_movement(keys_pressed, knight):
     player.knightrect = pygame.Rect(
         player.knightPosX, knight.y, player.knight_width, player.knight_height)
 
+def moveAutomatically(b_range, e_range, velocity = 2):
 
-def enemyMovement(enemyKnight):
-    '''
-    TODO: check if we need all variables
-        May need to change this function as a method
-    '''
-    global knight
-    velocity = 2
-    rightOfKnight = True
-    leftOfKnight = False
-
-    if enemyKnight.x > knight.x:
-        rightOfKnight = True
-    elif enemyKnight.x < knight.x:
-        leftOfKnight = True
+    if enemy.enemy_left:
+        print("1")
+        if enemyKnight.x < 0:
+            print("2")
+            enemy.enemy_right = True
+            enemy.enemy_left = False
+        enemyKnight.x -= velocity
+    elif enemy.enemy_right:
+        print("3")
+        if enemyKnight.x > WIDTH - enemy.enemy_width:
+            enemy.enemy_left = True
+            enemy.enemy_right = False
+        enemyKnight.x += velocity
 
 
 def main():
@@ -294,7 +299,6 @@ def main():
         keys_pressed = pygame.key.get_pressed()
         draw_window()
         handle_movement(keys_pressed, knight)
-        enemyMovement(enemyKnight)
         handle_damage()
 
     pygame.quit()
@@ -334,8 +338,20 @@ def draw_window():
     # if player.alive:
     # print("hi")
 
-    # if enemy.alive:
-    #WIN.blit(ENEMY_IMAGE_SCALED, (enemyKnight.x, HEIGHT - FLOOR.height - ENEMY_HEIGHT))
+    if enemy.alive:
+        WIN.blit(enemy1_right, (enemyKnight.x, HEIGHT - FLOOR.height - enemy.enemy_height))
+        moveAutomatically(enemyKnight.x - 100 ,enemyKnight.x + enemy.enemy_width + 100)
+#qwerty
+    b_range = enemyKnight.x - 100
+    e_range = enemyKnight.x + enemy.enemy_width + 100
+
+    pygame.draw.rect(WIN, (0,0,0), pygame.Rect(b_range, 0, 5, HEIGHT))
+    pygame.draw.rect(WIN, (0,0,0), pygame.Rect(e_range, 0, 5, HEIGHT))
+
+
+    pygame.draw.rect(WIN, (255, 52, 25), (WIDTH-210, 10, enemy.health*2, 40))
+
+
 
     if player.playerPosX > 100000:
         print("test")
@@ -355,7 +371,6 @@ def draw_window():
 
     elif player.swingTrigger == True:
         if player.left:
-            print("asdasdw")
             WIN.blit(swingLeft[player.swingCount//3],
                      (player.knightPosX, knight.y))
             player.swingCount += 1
@@ -363,7 +378,6 @@ def draw_window():
                 player.swingCount = 0
                 player.swingTrigger = False
         elif player.right:
-            print("right")
             WIN.blit(swingRight[player.swingCount//3],
                      (player.knightPosX, knight.y))
             player.swingCount += 1
@@ -404,7 +418,7 @@ def draw_window():
     myfont = pygame.font.SysFont('Comic Sans MS', 50)
     #positions = myfont.render("Playerposx: " + str(playerPosX) + " knightposx: " + str(knightPosX) + "stagePosX" + str(stagePosX), False, (0, 0, 0))
     # WIN.blit(positions,(0,100))
-    healthtext = myfont.render(str(knight.y), False, (0, 0, 0))
+    healthtext = myfont.render(str(enemyKnight.x), False, (0, 0, 0))
     WIN.blit(healthtext, (200,20))
     pygame.font.init()
     myfont2 = pygame.font.SysFont('Comic Sans MS', 30)
