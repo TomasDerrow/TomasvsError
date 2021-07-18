@@ -4,7 +4,7 @@ import time
 
 '''
 HOMEWORK SECTION
-* work on enemy range
+work on enemy swinging animations
 '''
 
 # Screen Settings
@@ -75,6 +75,7 @@ class Enemy(Character):
         self.enemy_height = 100
         self.enemy_left = True
         self.enemy_right = False
+        self.enemy_swinging = False
 
         Character.__init__(self)
 
@@ -248,14 +249,11 @@ def moveAutomatically(b_range, e_range, velocity = 2):
             enemyKnight.x -= velocity
     else:
         if enemy.enemy_left:
-            print("1")
             if enemyKnight.x < 0:
-                print("2")
                 enemy.enemy_right = True
                 enemy.enemy_left = False
             enemyKnight.x -= velocity
         elif enemy.enemy_right:
-            print("3")
             if enemyKnight.x > WIDTH - enemy.enemy_width:
                 enemy.enemy_left = True
                 enemy.enemy_right = False
@@ -313,9 +311,34 @@ def handle_damage():
     global enemyKnight
 
     if player.knightrect.colliderect(enemyKnight) and not player.blockTrigger:
-        player.health -= 0.1
+        ticks = pygame.time.get_ticks()
+        if ticks%13 == 0 and enemy.enemy_swinging:
+            enemy.enemy_swinging = True
+            print("a")
+            if enemy.enemy_swinging == True:
+                if enemy.enemy_left:
+
+                    # WIN.blit(swingLeft[player.swingCount//3],
+                    #          (player.knightPosX, knight.y))
+                    enemy.swingCount += 1
+                    if enemy.swingCount//3 > 2:
+                        enemy.swingCount = 0
+                        player.health -= 1
+                        enemy.enemy_swinging = False
+                elif enemy.enemy_right:
+                    # WIN.blit(swingRight[player.swingCount//3],
+                    #          (player.knightPosX, knight.y))
+                    enemy.swingCount += 1
+                    if enemy.swingCount//3 > 2:
+                        enemy.swingCount = 0
+                        player.health -= 1
+                        enemy.enemy_swinging = False
+
     if enemyKnight.colliderect(player.knightrect) and player.swingTrigger:
         enemy.health -= 1
+
+    if enemyKnight.colliderect(player.knightrect):
+        enemy.enemy_swinging = True
 
     if player.health == 0:
         print("player dead")
@@ -410,7 +433,7 @@ def draw_window():
     myfont = pygame.font.SysFont('Comic Sans MS', 50)
     #positions = myfont.render("Playerposx: " + str(playerPosX) + " knightposx: " + str(knightPosX) + "stagePosX" + str(stagePosX), False, (0, 0, 0))
     # WIN.blit(positions,(0,100))
-    healthtext = myfont.render(str(enemyKnight.x), False, (0, 0, 0))
+    healthtext = myfont.render(str(player.health), False, (0, 0, 0))
     WIN.blit(healthtext, (200,20))
     pygame.font.init()
     myfont2 = pygame.font.SysFont('Comic Sans MS', 30)
