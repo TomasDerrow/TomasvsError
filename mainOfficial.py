@@ -4,8 +4,7 @@ import time
 
 '''
 HOMEWORK SECTION
-* work on
-, add more animations, be able to swing and block while moving
+* work on enemy range
 '''
 
 # Screen Settings
@@ -242,19 +241,25 @@ def handle_movement(keys_pressed, knight):
 
 def moveAutomatically(b_range, e_range, velocity = 2):
 
-    if enemy.enemy_left:
-        print("1")
-        if enemyKnight.x < 0:
-            print("2")
-            enemy.enemy_right = True
-            enemy.enemy_left = False
-        enemyKnight.x -= velocity
-    elif enemy.enemy_right:
-        print("3")
-        if enemyKnight.x > WIDTH - enemy.enemy_width:
-            enemy.enemy_left = True
-            enemy.enemy_right = False
-        enemyKnight.x += velocity
+    if player.knightPosX + knight.width > b_range and player.knightPosX < e_range:
+        if player.knightPosX > enemyKnight.x:
+            enemyKnight.x += velocity
+        elif player.knightPosX < enemyKnight.x:
+            enemyKnight.x -= velocity
+    else:
+        if enemy.enemy_left:
+            print("1")
+            if enemyKnight.x < 0:
+                print("2")
+                enemy.enemy_right = True
+                enemy.enemy_left = False
+            enemyKnight.x -= velocity
+        elif enemy.enemy_right:
+            print("3")
+            if enemyKnight.x > WIDTH - enemy.enemy_width:
+                enemy.enemy_left = True
+                enemy.enemy_right = False
+            enemyKnight.x += velocity
 
 
 def main():
@@ -331,30 +336,17 @@ def draw_window():
         WIN.blit(BACKGROUND_IMAGE_SCALED, (rel_x, 0))
     x -= 1
 
-    WIN.blit(knightBlock1_left, (100, 100))
-    WIN.blit(knightSwing1_left, (200, 100))
-    WIN.blit(knightSwing2_left, (300, 100))
-    WIN.blit(knightSwing3_left, (400, 100))
-    # if player.alive:
-    # print("hi")
-
     if enemy.alive:
         WIN.blit(enemy1_right, (enemyKnight.x, HEIGHT - FLOOR.height - enemy.enemy_height))
         moveAutomatically(enemyKnight.x - 100 ,enemyKnight.x + enemy.enemy_width + 100)
 #qwerty
-    b_range = enemyKnight.x - 100
-    e_range = enemyKnight.x + enemy.enemy_width + 100
+    b_range = enemyKnight.x - 50
+    e_range = enemyKnight.x + enemy.enemy_width + 50
 
     pygame.draw.rect(WIN, (0,0,0), pygame.Rect(b_range, 0, 5, HEIGHT))
     pygame.draw.rect(WIN, (0,0,0), pygame.Rect(e_range, 0, 5, HEIGHT))
-
-
     pygame.draw.rect(WIN, (255, 52, 25), (WIDTH-210, 10, enemy.health*2, 40))
 
-
-
-    if player.playerPosX > 100000:
-        print("test")
 
     if player.walkCount + 1 >= 30:
         player.walkCount = 0
