@@ -4,7 +4,7 @@ import time
 
 '''
 HOMEWORK SECTION
-work on enemy swinging animations
+work on enemy swinging animations , clean up code, add some items into the world
 '''
 
 # Screen Settings
@@ -31,6 +31,7 @@ startScrollingPosX = (WIDTH / 2)
 #       scrolling_bg_x
 global x
 x = 0
+
 
 
 class Character(object):
@@ -64,7 +65,7 @@ class Player(Character):
         self.stagePosX = 0
         self.knight_width = 75
         self.knight_height = 67
-
+        self.exampleX = 0
         Character.__init__(self)
 
 
@@ -225,20 +226,54 @@ def handle_movement(keys_pressed, knight):
     if player.playerPosX < 0:
         player.playerPosX = 0
         # makes left boundary
+
     if player.playerPosX < startScrollingPosX - knight.width:
         player.knightPosX = player.playerPosX
+        # enemy.enemyPosX = enemyKnight.x
         # if the screen doesn't need to scroll then the knight can move freely
+
     elif player.playerPosX > stageWidth - startScrollingPosX:
         player.knightPosX = player.playerPosX - stageWidth + WIDTH - knight.width
-        #playerPosX = stageWidth + WIDTH
-        # right boundary
+        # enemy.enemyPosX = enemyKnight.x - stageWidth + WIDTH - enemy.enemy_width
+        # if you make it to the end you can walk normally
     else:
-        #playerPosX = startScrollingPosX - knight.width
         player.knightPosX = startScrollingPosX - knight.width
         player.stagePosX += player.velocity
+        enemyKnight.x -= player.velocity
+        player.exampleX -= player.velocity
+
+        #middle boundary
 
     player.knightrect = pygame.Rect(
         player.knightPosX, knight.y, player.knight_width, player.knight_height)
+
+# ####################################################################
+#
+# player.playerPosX += player.velocity
+#
+# if player.playerPosX > stageWidth:
+#     player.playerPosX = stageWidth
+#     # makes right boundary
+#
+# if player.playerPosX < 0:
+#     player.playerPosX = 0
+#     # makes left boundary
+# if player.playerPosX < startScrollingPosX - knight.width:
+#     player.knightPosX = player.playerPosX
+#     # if the screen doesn't need to scroll then the knight can move freely
+# elif player.playerPosX > stageWidth - startScrollingPosX:
+#     player.knightPosX = player.playerPosX - stageWidth + WIDTH - knight.width
+#     #playerPosX = stageWidth + WIDTH
+#     # right boundary
+# else:
+#     #playerPosX = startScrollingPosX - knight.width
+#     player.knightPosX = startScrollingPosX - knight.width
+#     player.stagePosX += player.velocity
+#
+# player.knightrect = pygame.Rect(
+#     player.knightPosX, knight.y, player.knight_width, player.knight_height)
+#
+# #######################################################
 
 def moveAutomatically(b_range, e_range, velocity = 2):
 
@@ -247,17 +282,17 @@ def moveAutomatically(b_range, e_range, velocity = 2):
             enemyKnight.x += velocity
         elif player.knightPosX < enemyKnight.x:
             enemyKnight.x -= velocity
-    else:
-        if enemy.enemy_left:
-            if enemyKnight.x < 0:
-                enemy.enemy_right = True
-                enemy.enemy_left = False
-            enemyKnight.x -= velocity
-        elif enemy.enemy_right:
-            if enemyKnight.x > WIDTH - enemy.enemy_width:
-                enemy.enemy_left = True
-                enemy.enemy_right = False
-            enemyKnight.x += velocity
+    # else:
+    #     if enemy.enemy_left:
+    #         if enemyKnight.x < 0:
+    #             enemy.enemy_right = True
+    #             enemy.enemy_left = False
+    #         enemyKnight.x -= velocity
+    #     elif enemy.enemy_right:
+    #         if enemyKnight.x > WIDTH - enemy.enemy_width:
+    #             enemy.enemy_left = True
+    #             enemy.enemy_right = False
+    #         enemyKnight.x += velocity
 
 
 def main():
@@ -423,6 +458,7 @@ def draw_window():
     if rel_x < WIDTH:
         WIN.blit(FLOOR1_IMAGE_SCALED, (rel_x, 130))
 
+        WIN.blit(knight4_left, (player.exampleX, 300))
     '''
     TODO: Create a separate function that displays text
     something like
@@ -430,11 +466,11 @@ def draw_window():
     '''
 
     pygame.font.init()
-    myfont = pygame.font.SysFont('Comic Sans MS', 50)
+    myfont = pygame.font.SysFont('Comic Sans MS', 25)
     #positions = myfont.render("Playerposx: " + str(playerPosX) + " knightposx: " + str(knightPosX) + "stagePosX" + str(stagePosX), False, (0, 0, 0))
     # WIN.blit(positions,(0,100))
-    healthtext = myfont.render(str(player.health), False, (0, 0, 0))
-    WIN.blit(healthtext, (200,20))
+    healthtext = myfont.render(f"stagePosx: {player.stagePosX} Playerposx: {player.playerPosX} KnightPosX: {player.knightPosX} EnemyPosX: {enemy.enemyPosX}", False, (0, 0, 0))
+    WIN.blit(healthtext, (0,100))
     pygame.font.init()
     myfont2 = pygame.font.SysFont('Comic Sans MS', 30)
     #enemyhitbox = myfont2.render("enemy.x: " + str(enemyKnight.x) + " enemy.y: " + str(enemyKnight.y) + " knightrect.x " + str(knightrect.x) + " knightrect.y " + str(knightrect.y), False, (0, 0, 0))
