@@ -65,7 +65,7 @@ class Player(Character):
         self.stagePosX = 0
         self.knight_width = 75
         self.knight_height = 67
-        self.exampleX = 600
+        self.spikesX = 600
         self.platformX = 300
         Character.__init__(self)
 
@@ -140,6 +140,8 @@ knightBlock1_left = player.loadImage(
 
 enemy1_right = enemy.loadImage('Assets', 'enemy.png', 100, 100)
 
+platform = player.loadImage('Assets', 'Platform.png', 100, 100)
+spikes = player.loadImage('Assets', 'Spikes.png', 100, 100)
 # Rectangles defined
 '''
 TODO: Can be defined in our loadImage method, may need to change though
@@ -157,7 +159,7 @@ enemyKnight = pygame.Rect(enemy.enemyPosX, HEIGHT-FLOOR.height -
 
 enemyRange = pygame.Rect(enemyKnight.x, enemyKnight.y, 500, 200)
 
-treeRect = pygame.Rect(player.exampleX, 300, 130, 150)
+treeRect = pygame.Rect(player.spikesX, 300, 130, 150)
 
 platformRect = pygame.Rect(player.platformX, 300, 100, 10)
 
@@ -248,7 +250,7 @@ def handle_movement(keys_pressed, knight):
         player.knightPosX = startScrollingPosX - knight.width
         player.stagePosX += player.velocity
         enemyKnight.x -= player.velocity
-        player.exampleX -= player.velocity
+        player.spikesX -= player.velocity
         treeRect.x -= player.velocity
         player.platformX -= player.velocity
         platformRect.x -= player.velocity
@@ -355,9 +357,12 @@ def main():
 def handle_objects():
     if player.knightrect.colliderect(platformRect):
         knight.y = 235
-        print('asdas')
     elif not player.jumping:
-        knight.y = 385
+        if knight.y < HEIGHT-FLOOR.height:
+            knight.y == HEIGHT-FLOOR.height
+        if not player.knightrect.colliderect(platformRect) and knight.y < 383:
+            knight.y += 15
+
 
 def handle_damage():
     global enemyKnight
@@ -400,7 +405,7 @@ def handle_damage():
         enemy.alive = False
 
     if treeRect.colliderect(player.knightrect) and not player.blockTrigger:
-        player.health -= .001
+        player.health -= 1
 
 def draw_window():
     global x
@@ -477,7 +482,7 @@ def draw_window():
     if rel_x < WIDTH:
         WIN.blit(FLOOR1_IMAGE_SCALED, (rel_x, 130))
 
-        WIN.blit(tree, (player.exampleX, 300))
+        WIN.blit(spikes, (player.spikesX, 350))
 
 
     '''
@@ -490,8 +495,8 @@ def draw_window():
     myfont = pygame.font.SysFont('Comic Sans MS', 20)
     #positions = myfont.render("Playerposx: " + str(playerPosX) + " knightposx: " + str(knightPosX) + "stagePosX" + str(stagePosX), False, (0, 0, 0))
     # WIN.blit(positions,(0,100))
-    healthtext = myfont.render(f"treeRect.x: {treeRect.x} treeRect.y: {treeRect.y} exampleX; {player.exampleX}", False, (0, 0, 0))
-    positiontext = myfont.render(f"stagePosx: {player.stagePosX} Playerposx: {player.playerPosX} KnightPosX: {player.knightPosX} EnemyPosX: {enemy.enemyPosX} knight.x: {knight.y}", False, (0, 0, 0))
+    healthtext = myfont.render(f"treeRect.x: {treeRect.x} treeRect.y: {treeRect.y} spikesX; {player.spikesX}", False, (0, 0, 0))
+    positiontext = myfont.render(f"stagePosx: {player.stagePosX} Playerposx: {player.playerPosX} KnightPosX: {player.knightPosX} EnemyPosX: {enemy.enemyPosX} knight.y: {knight.y}", False, (0, 0, 0))
     WIN.blit(positiontext, (0,100))
     pygame.font.init()
     myfont2 = pygame.font.SysFont('Comic Sans MS', 30)
@@ -509,11 +514,8 @@ def draw_window():
     text_width = deathtext.get_width()
     text_height = deathtext.get_height()
 
-    '''
-    TODO: don't need the alive attribute,
-        check if health is <= 0
-        also this check should be in the handle_damage function
-    '''
+    WIN.blit(platform, (player.platformX, 300, 100, 10))
+
     if player.health <= 0:
         pygame.draw.rect(WIN, (0, 0, 0), (0, 0, WIDTH, HEIGHT))
         WIN.blit(deathtext, (WIDTH/2 - text_width/2, HEIGHT/2 - text_height/2))
