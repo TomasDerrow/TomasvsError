@@ -159,7 +159,10 @@ enemyKnight = pygame.Rect(enemy.enemyPosX, HEIGHT-FLOOR.height -
 
 enemyRange = pygame.Rect(enemyKnight.x, enemyKnight.y, 500, 200)
 
-treeRect = pygame.Rect(player.spikesX, 300, 130, 150)
+spikesRect = pygame.Rect(player.spikesX, 300, 80, 100)
+
+spikesStartRect = pygame.Rect(b_spike, 383, 5, spikesRect.height)
+spikesEndRect = pygame.Rect(e_spike, 383, 5, spikesRect.height)
 
 platformRect = pygame.Rect(player.platformX, 300, 100, 10)
 
@@ -251,7 +254,7 @@ def handle_movement(keys_pressed, knight):
         player.stagePosX += player.velocity
         enemyKnight.x -= player.velocity
         player.spikesX -= player.velocity
-        treeRect.x -= player.velocity
+        spikesRect.x -= player.velocity
         player.platformX -= player.velocity
         platformRect.x -= player.velocity
 
@@ -362,6 +365,8 @@ def handle_objects():
             knight.y == HEIGHT-FLOOR.height
         if not player.knightrect.colliderect(platformRect) and knight.y < 383:
             knight.y += 15
+    if player.knightrect.colliderect(spikesStartRect):
+        knight.x = spikesStartRect - knight.width
 
 
 def handle_damage():
@@ -404,8 +409,8 @@ def handle_damage():
         enemyKnight.y = 5000
         enemy.alive = False
 
-    if treeRect.colliderect(player.knightrect) and not player.blockTrigger:
-        player.health -= 1
+    if spikesRect.colliderect(player.knightrect) and not player.blockTrigger:
+        player.health -= 0.1
 
 def draw_window():
     global x
@@ -424,11 +429,16 @@ def draw_window():
     b_range = enemyKnight.x - 50
     e_range = enemyKnight.x + enemy.enemy_width + 50
 
+    b_spike = spikesRect.x
+    e_spike = spikesRect.x + 80
     pygame.draw.rect(WIN, (0,0,0), pygame.Rect(b_range, 0, 5, HEIGHT))
     pygame.draw.rect(WIN, (0,0,0), pygame.Rect(e_range, 0, 5, HEIGHT))
+
     pygame.draw.rect(WIN, (255, 52, 25), (WIDTH-210, 10, enemy.health*2, 40))
     pygame.draw.rect(WIN, (0,0,0), pygame.Rect(player.platformX, 300, 100, 10))
 
+    pygame.draw.rect(WIN, (0,0,0), pygame.Rect(b_spike, 383, 5, spikesRect.height))
+    pygame.draw.rect(WIN, (0,0,0), pygame.Rect(e_spike, 383, 5, spikesRect.height))
 
     if player.walkCount + 1 >= 30:
         player.walkCount = 0
@@ -495,7 +505,7 @@ def draw_window():
     myfont = pygame.font.SysFont('Comic Sans MS', 20)
     #positions = myfont.render("Playerposx: " + str(playerPosX) + " knightposx: " + str(knightPosX) + "stagePosX" + str(stagePosX), False, (0, 0, 0))
     # WIN.blit(positions,(0,100))
-    healthtext = myfont.render(f"treeRect.x: {treeRect.x} treeRect.y: {treeRect.y} spikesX; {player.spikesX}", False, (0, 0, 0))
+    healthtext = myfont.render(f"spikesRect.x: {spikesRect.x} spikesRect.y: {spikesRect.y} spikesX; {player.spikesX}", False, (0, 0, 0))
     positiontext = myfont.render(f"stagePosx: {player.stagePosX} Playerposx: {player.playerPosX} KnightPosX: {player.knightPosX} EnemyPosX: {enemy.enemyPosX} knight.y: {knight.y}", False, (0, 0, 0))
     WIN.blit(positiontext, (0,100))
     pygame.font.init()
