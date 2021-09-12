@@ -4,6 +4,7 @@ import time
 
 '''
 HOMEWORK SECTION
+fix spikes, watch video
 '''
 
 # Screen Settings
@@ -171,6 +172,7 @@ e_spike = spikesRect.x + 80
 
 spikesStartRect = pygame.Rect(b_spike, 383, 5, spikesRect.height)
 spikesEndRect = pygame.Rect(e_spike, 383, 5, spikesRect.height)
+spikesTopRect = pygame.Rect(player.spikesX, 383, 80, 5)
 
 platformRect = pygame.Rect(player.platformX, 300, 100, 10)
 
@@ -273,6 +275,7 @@ def handle_movement(keys_pressed, knight):
         platformRect.x -= player.velocity
         spikesStartRect.x -= player.velocity
         spikesEndRect.x -= player.velocity
+        spikesTopRect.x -= player.velocity
 
         #middle boundary
 
@@ -381,15 +384,18 @@ def handle_objects():
             knight.y == HEIGHT-FLOOR.height
         if not player.knightrect.colliderect(platformRect) and knight.y < 383:
             knight.y += 15
-    if player.knightrect.colliderect(spikesStartRect):
+    if player.knightrect.colliderect(spikesStartRect) and not player.knightrect.colliderect(spikesTopRect):
         player.beingStoppedRight = True
     else:
         player.beingStoppedRight = False
 
-    if player.knightrect.colliderect(spikesEndRect):
+    if player.knightrect.colliderect(spikesEndRect) and not player.knightrect.colliderect(spikesTopRect):
         player.beingStoppedLeft = True
     else:
         player.beingStoppedLeft = False
+    if player.knightrect.colliderect(spikesTopRect):
+        print("a")
+        knight.y = 320
 
 
 
@@ -461,6 +467,7 @@ def draw_window():
 
     pygame.draw.rect(WIN, (0,0,0), pygame.Rect(b_spike, 383, 5, spikesRect.height))
     pygame.draw.rect(WIN, (0,0,0), pygame.Rect(e_spike, 383, 5, spikesRect.height))
+    pygame.draw.rect(WIN, (0,0,0), pygame.Rect(player.spikesX, 383, 80, 5))
 
     if player.walkCount + 1 >= 30:
         player.walkCount = 0
@@ -529,7 +536,7 @@ def draw_window():
     # WIN.blit(positions,(0,100))
     healthtext = myfont.render(f"spikesRect.x: {spikesRect.x} spikesRect.y: {spikesRect.y} spikesX; {player.spikesX} b_spike: {b_spike} e_spike: {e_spike}", False, (0, 0, 0))
     positiontext = myfont.render(f"stagePosx: {player.stagePosX} Playerposx: {player.playerPosX} KnightPosX: {player.knightPosX} EnemyPosX: {enemy.enemyPosX} knight.y: {knight.y}", False, (0, 0, 0))
-    collidetext = myfont.render(f"spikesStartRect.x: {spikesStartRect.x} b_spike: {b_spike}", False, (0,0,0))
+    collidetext = myfont.render(f"spikesTopRect.x: {spikesTopRect.x} spikesTopRect.y: {spikesTopRect.y}", False, (0,0,0))
     WIN.blit(collidetext, (0,100))
     pygame.font.init()
     myfont2 = pygame.font.SysFont('Comic Sans MS', 30)
