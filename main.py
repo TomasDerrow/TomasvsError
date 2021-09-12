@@ -4,7 +4,6 @@ import time
 
 '''
 HOMEWORK SECTION
-make platform image, make another platform, add spikes
 '''
 
 # Screen Settings
@@ -25,6 +24,7 @@ BACKGROUND_IMAGE_SCALED = pygame.transform.scale(BACKGROUND, (WIDTH, HEIGHT))
 bgWidth, bgHeight = BACKGROUND_IMAGE_SCALED.get_rect().size
 stageWidth = bgWidth*2
 startScrollingPosX = (WIDTH / 2)
+
 
 # Scrolling Background
 # TODO: be more descriptive with variable names
@@ -67,6 +67,10 @@ class Player(Character):
         self.knight_height = 67
         self.spikesX = 600
         self.platformX = 300
+        self.arrowX = 0
+        self.arrowY = 0
+        self.beingStoppedRight = False
+        self.beingStoppedLeft = False
         Character.__init__(self)
 
 
@@ -160,11 +164,17 @@ enemyKnight = pygame.Rect(enemy.enemyPosX, HEIGHT-FLOOR.height -
 enemyRange = pygame.Rect(enemyKnight.x, enemyKnight.y, 500, 200)
 
 spikesRect = pygame.Rect(player.spikesX, 300, 80, 100)
+global b_spike
+b_spike = spikesRect.x
+global e_spike
+e_spike = spikesRect.x + 80
 
 spikesStartRect = pygame.Rect(b_spike, 383, 5, spikesRect.height)
 spikesEndRect = pygame.Rect(e_spike, 383, 5, spikesRect.height)
 
 platformRect = pygame.Rect(player.platformX, 300, 100, 10)
+
+arrowRect = pygame.Rect(player.arrowX, player.arrowY, 100, 10)
 
 Character_Movements = [
     pygame.image.load(os.path.join('Assets', 'Default_Character1N.png')),
@@ -184,17 +194,19 @@ swingRight = [knightSwing1_right, knightSwing2_right, knightSwing3_right]
 
 
 def handle_movement(keys_pressed, knight):
+    global b_spike
+    global e_spike
     '''
     TODO: Add comments near if statements describing what is happening
     '''
 
-    if pygame.key.get_pressed()[pygame.K_a]:
+    if pygame.key.get_pressed()[pygame.K_a] and not player.beingStoppedLeft:
         player.velocity = -5
         player.left = True
         player.right = False
         player.still = False
     #if press a move left
-    elif pygame.key.get_pressed()[pygame.K_d]:
+    elif pygame.key.get_pressed()[pygame.K_d] and not player.beingStoppedRight:
         player.velocity = 5
         player.left = False
         player.right = True
@@ -255,8 +267,12 @@ def handle_movement(keys_pressed, knight):
         enemyKnight.x -= player.velocity
         player.spikesX -= player.velocity
         spikesRect.x -= player.velocity
+        b_spike -= player.velocity
+        e_spike -= player.velocity
         player.platformX -= player.velocity
         platformRect.x -= player.velocity
+        spikesStartRect.x -= player.velocity
+        spikesEndRect.x -= player.velocity
 
         #middle boundary
 
@@ -366,7 +382,15 @@ def handle_objects():
         if not player.knightrect.colliderect(platformRect) and knight.y < 383:
             knight.y += 15
     if player.knightrect.colliderect(spikesStartRect):
-        knight.x = spikesStartRect - knight.width
+        player.beingStoppedRight = True
+    else:
+        player.beingStoppedRight = False
+
+    if player.knightrect.colliderect(spikesEndRect):
+        player.beingStoppedLeft = True
+    else:
+        player.beingStoppedLeft = False
+
 
 
 def handle_damage():
@@ -398,8 +422,8 @@ def handle_damage():
     if enemyKnight.colliderect(player.knightrect) and player.swingTrigger:
         enemy.health -= 1
 
-    if enemyKnight.colliderect(player.knightrect):
-        enemy.enemy_swinging = True
+    # if enemyKnight.colliderect(player.knightrect):
+    #     enemy.enemy_swinging = True
 
     if player.health == 0:
         print("player dead")
@@ -411,10 +435,11 @@ def handle_damage():
 
     if spikesRect.colliderect(player.knightrect) and not player.blockTrigger:
         player.health -= 0.1
+    # if spikesStartRect.colliderect(player.knightRect)
+    #     knightR
 
 def draw_window():
     global x
-
     rel_x = player.stagePosX % BACKGROUND_IMAGE_SCALED.get_rect().width
     WIN.blit(BACKGROUND_IMAGE_SCALED,
              (rel_x - BACKGROUND_IMAGE_SCALED.get_rect().width, 0))
@@ -428,9 +453,6 @@ def draw_window():
 #qwerty
     b_range = enemyKnight.x - 50
     e_range = enemyKnight.x + enemy.enemy_width + 50
-
-    b_spike = spikesRect.x
-    e_spike = spikesRect.x + 80
     pygame.draw.rect(WIN, (0,0,0), pygame.Rect(b_range, 0, 5, HEIGHT))
     pygame.draw.rect(WIN, (0,0,0), pygame.Rect(e_range, 0, 5, HEIGHT))
 
@@ -505,9 +527,10 @@ def draw_window():
     myfont = pygame.font.SysFont('Comic Sans MS', 20)
     #positions = myfont.render("Playerposx: " + str(playerPosX) + " knightposx: " + str(knightPosX) + "stagePosX" + str(stagePosX), False, (0, 0, 0))
     # WIN.blit(positions,(0,100))
-    healthtext = myfont.render(f"spikesRect.x: {spikesRect.x} spikesRect.y: {spikesRect.y} spikesX; {player.spikesX}", False, (0, 0, 0))
+    healthtext = myfont.render(f"spikesRect.x: {spikesRect.x} spikesRect.y: {spikesRect.y} spikesX; {player.spikesX} b_spike: {b_spike} e_spike: {e_spike}", False, (0, 0, 0))
     positiontext = myfont.render(f"stagePosx: {player.stagePosX} Playerposx: {player.playerPosX} KnightPosX: {player.knightPosX} EnemyPosX: {enemy.enemyPosX} knight.y: {knight.y}", False, (0, 0, 0))
-    WIN.blit(positiontext, (0,100))
+    collidetext = myfont.render(f"spikesStartRect.x: {spikesStartRect.x} b_spike: {b_spike}", False, (0,0,0))
+    WIN.blit(collidetext, (0,100))
     pygame.font.init()
     myfont2 = pygame.font.SysFont('Comic Sans MS', 30)
     #enemyhitbox = myfont2.render("enemy.x: " + str(enemyKnight.x) + " enemy.y: " + str(enemyKnight.y) + " knightrect.x " + str(knightrect.x) + " knightrect.y " + str(knightrect.y), False, (0, 0, 0))
@@ -530,6 +553,7 @@ def draw_window():
         pygame.draw.rect(WIN, (0, 0, 0), (0, 0, WIDTH, HEIGHT))
         WIN.blit(deathtext, (WIDTH/2 - text_width/2, HEIGHT/2 - text_height/2))
 
+    pygame.draw.rect(WIN, (0,0,0), (player.arrowX, player.arrowY, 100, 10))
 
 
 if __name__ == "__main__":
