@@ -131,7 +131,7 @@ knightSwing3_right = player.loadImage(
     'Assets', 'Default_Character_Swing3.png', player.knight_width, player.knight_height)
 
 knightBlock1_right = player.loadImage(
-    'Assets', 'Default_Character_Block1.png', player.knight_width, player.knight_height)
+    'Assets', 'Default_Character_Block_1.png', player.knight_width, player.knight_height)
 
 knightSwing1_left = player.loadImage(
     'Assets', 'Default_Character_Swing_Flipped1.png', player.knight_width, player.knight_height)
@@ -172,8 +172,8 @@ e_spike = spikesRect.x + 80
 
 spikesStartRect = pygame.Rect(b_spike, 383, 5, spikesRect.height)
 spikesEndRect = pygame.Rect(e_spike, 383, 5, spikesRect.height)
-spikesTopRect = pygame.Rect(player.spikesX, 383, 80, 5)
-
+spikesTopRect = pygame.Rect(player.spikesX + 5, 383, 75, 5)
+#80
 platformRect = pygame.Rect(player.platformX, 300, 100, 10)
 
 arrowRect = pygame.Rect(player.arrowX, player.arrowY, 100, 10)
@@ -384,6 +384,9 @@ def handle_objects():
             knight.y == HEIGHT-FLOOR.height
         if not player.knightrect.colliderect(platformRect) and knight.y < 383:
             knight.y += 15
+            print("asd")
+        if knight.y > 383:
+            knight.y = 383
     if player.knightrect.colliderect(spikesStartRect) and not player.knightrect.colliderect(spikesTopRect):
         player.beingStoppedRight = True
     else:
@@ -465,9 +468,9 @@ def draw_window():
     pygame.draw.rect(WIN, (255, 52, 25), (WIDTH-210, 10, enemy.health*2, 40))
     pygame.draw.rect(WIN, (0,0,0), pygame.Rect(player.platformX, 300, 100, 10))
 
-    pygame.draw.rect(WIN, (0,0,0), pygame.Rect(b_spike, 383, 5, spikesRect.height))
-    pygame.draw.rect(WIN, (0,0,0), pygame.Rect(e_spike, 383, 5, spikesRect.height))
-    pygame.draw.rect(WIN, (0,0,0), pygame.Rect(player.spikesX, 383, 80, 5))
+    # pygame.draw.rect(WIN, (0,0,0), pygame.Rect(b_spike, 383, 5, spikesRect.height))
+    # pygame.draw.rect(WIN, (0,0,0), pygame.Rect(e_spike, 383, 5, spikesRect.height))
+    # pygame.draw.rect(WIN, (0,0,0), pygame.Rect(player.spikesX, 383, 80, 5))
 
     if player.walkCount + 1 >= 30:
         player.walkCount = 0
@@ -538,6 +541,7 @@ def draw_window():
     positiontext = myfont.render(f"stagePosx: {player.stagePosX} Playerposx: {player.playerPosX} KnightPosX: {player.knightPosX} EnemyPosX: {enemy.enemyPosX} knight.y: {knight.y}", False, (0, 0, 0))
     collidetext = myfont.render(f"spikesTopRect.x: {spikesTopRect.x} spikesTopRect.y: {spikesTopRect.y}", False, (0,0,0))
     WIN.blit(collidetext, (0,100))
+    WIN.blit(positiontext, (0,200))
     pygame.font.init()
     myfont2 = pygame.font.SysFont('Comic Sans MS', 30)
     #enemyhitbox = myfont2.render("enemy.x: " + str(enemyKnight.x) + " enemy.y: " + str(enemyKnight.y) + " knightrect.x " + str(knightrect.x) + " knightrect.y " + str(knightrect.y), False, (0, 0, 0))
