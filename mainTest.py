@@ -34,13 +34,9 @@ startScrollingPosX = (WIDTH / 2)
 global x
 x = 0
 
-arrow_x = 0
-arrow_y = 0
-global time
 time = 0
 power = 0
 angle = 0
-global shoot
 shoot = False
 
 
@@ -95,31 +91,36 @@ class Enemy(Character):
         self.enemyPosX = WIDTH/2 - self.enemy_width
         Character.__init__(self)
 
-class Arrow():
-    def __init__(self, x, y, radius, color):
+class ball(object):
+    def __init__(self,x,y,radius,color):
         self.x = x
         self.y = y
         self.radius = radius
         self.color = color
 
-    def draw(self, WIN):
-        pygame.draw.circle(WIN, (0,0,0), (self.x, self.y), self.radius)
-        pygame.draw.circle(WIN, self.color, (self.x, self.y), self.radius-1)
+    def draw(self, win):
+        pygame.draw.circle(win, (0,0,0), (self.x,self.y), self.radius)
+        pygame.draw.circle(win, self.color, (self.x,self.y), self.radius-1)
 
     @staticmethod
-    def arrowpath(startX, startY, power, ang, time):
+    def ballPath(startx, starty, power, ang, time):
         angle = ang
-        velX = math.cos(angle) * power
-        velY = math.sin(angle) * power
+        velx = math.cos(angle) * power
+        vely = math.sin(angle) * power
 
-        distX = velX * time
-        distY = (velY * time) + ((-4.9 * (time)**2) / 2)
+        distX = velx * time
+        distY = (vely * time) + ((-4.9 * (time ** 2)) / 2)
 
-        newX = round(distX + startY)
-        # print("x:", newX)
-        newY = round(startY - distY)
-        # print("y:", newY)
-        return(newX, newY)
+        newx = round(distX + startx)
+        newy = round(starty - distY)
+
+
+        return (newx, newy)
+
+def redrawWindow():
+    golfBall.draw(WIN)
+    pygame.draw.line(WIN, (0,0,0),line[0], line[1])
+    pygame.display.update()
 
 # print statements for testing
 player = Player()
@@ -212,7 +213,7 @@ spikesTopRect = pygame.Rect(player.spikesX + 5, 383, 75, 5)
 platformRect = pygame.Rect(player.platformX, 300, 100, 10)
 
 arrowRect = pygame.Rect(player.arrowX, player.arrowY, 100, 10)
-arrow = Arrow(300, 494, 5, (255,255,255))
+golfBall = ball(300,494,5,(255,255,255))
 
 Character_Movements = [
     pygame.image.load(os.path.join('Assets', 'Default_Character1N.png')),
@@ -372,26 +373,20 @@ def main():
     run = True
     clock = pygame.time.Clock()
     while run:
+        clock.tick(200)
         if shoot:
-            if arrow.y < 500 - arrow.radius:
+            if golfBall.y < 500 - golfBall.radius:
                 time += 0.05
-                po = Arrow.arrowpath(arrow_x, arrow_y, power, angle, time)
-                arrow.x = po[0]
-                print(po[0])
-                arrow.y = po[1]
+                po = ball.ballPath(x, y, power, angle, time)
+                golfBall.x = po[0]
+                golfBall.y = po[1]
             else:
-                # print("here")
                 shoot = False
                 time = 0
-                arrow.y = 494
+                golfBall.y = 494
 
-        line = [(arrow.x, arrow.y), pygame.mouse.get_pos()]
-        arrow.draw(WIN)
-        pygame.draw.line(WIN, (0,0,0), line[0], line[1])
-        '''
-        TODO: can you think of another place to move these if statements?
-             May need to move
-        '''
+        line = [(golfBall.x, golfBall.y), pygame.mouse.get_pos()]
+        redrawWindow()
         #if knight.y > HEIGHT - FLOOR.height - player.knight_height:
             # checking if knight is on ground
             #player.jumping = False
@@ -411,24 +406,27 @@ def main():
                 if event.button == 1:
                     player.swinging = True
                     player.swingTrigger = True
-                if shoot == False:
-                    arrow_x = arrow.x
-                    arrow_y = arrow.y
-                    pos = pygame.mouse.get_pos()
-                    shoot = True
-                    power = math.sqrt((line[1][1] - line[0][1])**2 + (line[1][0] - line[0][1])**2)/8
-                    angle = findAngle(pos)
                     #swingCount += 1
                     # handle_swing(swingTrigger)
                     #print("swingtrigger", swingTrigger)
                 if event.button == 3:
                     player.blocking = True
                     player.blockTrigger = True
+
                     # handle_block(blockTrigger)
                     #print("blocktrigger", blockTrigger)
 
             else:
                 player.blockTrigger = False
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if not shoot:
+                    x = golfBall.x
+                    y = golfBall.y
+                    pos =pygame.mouse.get_pos()
+                    shoot = True
+                    power = math.sqrt((line[1][1]-line[0][1])**2 +(line[1][0]-line[0][1])**2)/8
+                    angle = findAngle(pos)
 
 
         keys_pressed = pygame.key.get_pressed()
@@ -439,8 +437,8 @@ def main():
     pygame.quit()
 
 def findAngle(pos):
-    sX = arrow.x
-    sY = arrow.y
+    sX = golfBall.x
+    sY = golfBall.y
     try:
         angle = math.atan((sY - pos[1]) / (sX - pos[0]))
     except:
