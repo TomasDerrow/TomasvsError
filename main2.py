@@ -80,6 +80,7 @@ class Player(Character):
         self.arrowY = 0
         self.beingStoppedRight = False
         self.beingStoppedLeft = False
+        self.arrowShow = False
         Character.__init__(self)
 
 
@@ -181,6 +182,7 @@ enemy1_right = enemy.loadImage('Assets', 'enemy.png', 100, 100)
 platform = player.loadImage('Assets', 'Platform.png', 100, 100)
 spikes = player.loadImage('Assets', 'Spikes.png', 100, 100)
 bow = player.loadImage('Assets', 'bow.png', 100, 100)
+arrowImage = player.loadImage('Assets', 'Arrow.png', 70, 70)
 # Rectangles defined
 '''
 TODO: Can be defined in our loadImage method, may need to change though
@@ -211,8 +213,8 @@ spikesTopRect = pygame.Rect(player.spikesX + 5, 383, 75, 5)
 platformRect = pygame.Rect(player.platformX, 300, 100, 10)
 
 arrowRect = pygame.Rect(player.arrowX, player.arrowY, 100, 10)
-arrow = Arrow(300, 494, 5, (255,255,255))
-
+arrow = Arrow(300, 444, 5, (255,255,255))
+print(FLOOR.height)
 Character_Movements = [
     pygame.image.load(os.path.join('Assets', 'Default_Character1N.png')),
     pygame.image.load(os.path.join(
@@ -228,7 +230,6 @@ swingLeft = [knightSwing1_left, knightSwing2_left, knightSwing3_left]
 swingRight = [knightSwing1_right, knightSwing2_right, knightSwing3_right]
 
 # functions
-
 
 def handle_movement(keys_pressed, knight):
     global b_spike
@@ -363,8 +364,6 @@ def moveAutomatically(b_range, e_range, velocity = 2):
     #             enemy.enemy_left = True
     #             enemy.enemy_right = False
     #         enemyKnight.x += velocity
-
-
 def main():
     global shoot
     global time
@@ -372,21 +371,29 @@ def main():
     clock = pygame.time.Clock()
     while run:
         if shoot:
-            if arrow.y < 500 - arrow.radius:
+            if arrow.y < 500-FLOOR.height - arrow.radius:
+                player.arrowShow = True
                 time += 0.05
                 po = Arrow.arrowpath(arrow_x, arrow_y, power, angle, time)
                 arrow.x = po[0]
-                print(po[0])
+
+                # print(po[0])
                 arrow.y = po[1]
+
             else:
                 # print("here")
+                player.arrowShow = False
                 shoot = False
                 time = 0
-                arrow.y = 494
+                print("asdas")
+                # arrow.x = player.knightPosX
+                # arrow.y = knight.y
+
+
 
         line = [(arrow.x, arrow.y), pygame.mouse.get_pos()]
-        arrow.draw(WIN)
-        pygame.draw.line(WIN, (0,0,0), line[0], line[1])
+        # arrow.draw(WIN)
+        # pygame.draw.line(WIN, (0,0,0), line[0], line[1])
         '''
         TODO: can you think of another place to move these if statements?
              May need to move
@@ -411,11 +418,13 @@ def main():
                     player.swinging = True
                     player.swingTrigger = True
                 if shoot == False:
+                    arrow.x = player.knightPosX + 20
+                    arrow.y = knight.y + 50
                     arrow_x = arrow.x
                     arrow_y = arrow.y
                     pos = pygame.mouse.get_pos()
                     shoot = True
-                    power = math.sqrt((line[1][1] - line[0][1])**2 + (line[1][0] - line[0][1])**2)/8
+                    power = math.sqrt((line[1][1] - line[0][1])**2 + (line[1][0] - line[0][1])**2)/4
                     angle = findAngle(pos)
                     #swingCount += 1
                     # handle_swing(swingTrigger)
@@ -464,7 +473,6 @@ def handle_objects():
             knight.y == HEIGHT-FLOOR.height
         if not player.knightrect.colliderect(platformRect) and knight.y < 383:
             knight.y += 15
-            print("asd")
         if knight.y > 383:
             knight.y = 383
     if player.knightrect.colliderect(spikesStartRect) and not player.knightrect.colliderect(spikesTopRect):
@@ -624,7 +632,7 @@ def draw_window(line):
     healthtext = myfont.render(f"spikesRect.x: {spikesRect.x} spikesRect.y: {spikesRect.y} spikesX; {player.spikesX} b_spike: {b_spike} e_spike: {e_spike}", False, (0, 0, 0))
     positiontext = myfont.render(f"stagePosx: {player.stagePosX} Playerposx: {player.playerPosX} KnightPosX: {player.knightPosX} EnemyPosX: {enemy.enemyPosX} knight.y: {knight.y}", False, (0, 0, 0))
     collidetext = myfont.render(f"spikesTopRect.x: {spikesTopRect.x} spikesTopRect.y: {spikesTopRect.y}", False, (0,0,0))
-    arrowtext = myfont.render(f"arrowX {arrow.x} arrowy {arrow.y} arrow.radius: {arrow.radius} ", False, (0,0,0))
+    arrowtext = myfont.render(f"arrowX {arrow.x} arrowy {arrow.y} arrow.radius: {arrow.radius}", False, (0,0,0))
     # WIN.blit(collidetext, (0,100))
     # WIN.blit(positiontext, (0,200))
     WIN.blit(arrowtext, (0, 100))
@@ -646,6 +654,9 @@ def draw_window(line):
 
     WIN.blit(platform, (player.platformX, 300, 100, 10))
     WIN.blit(bow, (player.platformX - 10, 220, 100, 100))
+    if player.arrowShow:
+        WIN.blit(arrowImage, (arrow.x-35, arrow.y-35, 10, 10))
+
     if player.health <= 0:
         pygame.draw.rect(WIN, (0, 0, 0), (0, 0, WIDTH, HEIGHT))
         WIN.blit(deathtext, (WIDTH/2 - text_width/2, HEIGHT/2 - text_height/2))
