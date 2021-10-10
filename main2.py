@@ -81,6 +81,8 @@ class Player(Character):
         self.beingStoppedRight = False
         self.beingStoppedLeft = False
         self.arrowShow = False
+        self.hasBow = False
+        self.bowActive = False
         Character.__init__(self)
 
 
@@ -177,6 +179,10 @@ knightSwing3_left = player.loadImage(
 knightBlock1_left = player.loadImage(
     'Assets', 'Default_Character_Block_Flipped1.png', player.knight_width, player.knight_height)
 
+knightBow1_right = player.loadImage(
+    'Assets', 'Default_Character_Bow.png', player.knight_width, player.knight_height
+)
+
 enemy1_right = enemy.loadImage('Assets', 'enemy.png', 100, 100)
 
 platform = player.loadImage('Assets', 'Platform.png', 100, 100)
@@ -201,6 +207,8 @@ enemyKnight = pygame.Rect(enemy.enemyPosX, HEIGHT-FLOOR.height -
 enemyRange = pygame.Rect(enemyKnight.x, enemyKnight.y, 500, 200)
 
 spikesRect = pygame.Rect(player.spikesX, 300, 80, 100)
+bowRect = pygame.Rect(player.platformX - 10, 220, 100, 100)
+
 global b_spike
 b_spike = spikesRect.x
 global e_spike
@@ -417,7 +425,7 @@ def main():
                 if event.button == 1:
                     player.swinging = True
                     player.swingTrigger = True
-                if shoot == False:
+                if shoot == False and player.bowActive:
                     arrow.x = player.knightPosX + 20
                     arrow.y = knight.y + 50
                     arrow_x = arrow.x
@@ -466,6 +474,10 @@ def findAngle(pos):
     return angle
 
 def handle_objects():
+    if player.knightrect.colliderect(bowRect):
+        player.hasBow = True
+        player.bowActive = True
+
     if player.knightrect.colliderect(platformRect):
         knight.y = 235
     elif not player.jumping:
@@ -563,53 +575,59 @@ def draw_window(line):
     # pygame.draw.rect(WIN, (0,0,0), pygame.Rect(b_spike, 383, 5, spikesRect.height))
     # pygame.draw.rect(WIN, (0,0,0), pygame.Rect(e_spike, 383, 5, spikesRect.height))
     # pygame.draw.rect(WIN, (0,0,0), pygame.Rect(player.spikesX, 383, 80, 5))
+    if player.hasBow == False:
+        if player.walkCount + 1 >= 30:
+            player.walkCount = 0
 
-    if player.walkCount + 1 >= 30:
-        player.walkCount = 0
+        if not(player.still):
+            if player.left:
+                WIN.blit(walkLeft[player.walkCount//10],
+                         (player.knightPosX, knight.y))
+                player.walkCount += 1
+            elif player.right:
+                WIN.blit(walkRight[player.walkCount//10],
+                         (player.knightPosX, knight.y))
+                player.walkCount += 1
 
-    if not(player.still):
-        if player.left:
-            WIN.blit(walkLeft[player.walkCount//10],
-                     (player.knightPosX, knight.y))
-            player.walkCount += 1
-        elif player.right:
-            WIN.blit(walkRight[player.walkCount//10],
-                     (player.knightPosX, knight.y))
-            player.walkCount += 1
-
-    elif player.swingTrigger == True:
-        if player.left:
-            WIN.blit(swingLeft[player.swingCount//3],
-                     (player.knightPosX, knight.y))
-            player.swingCount += 1
-            if player.swingCount//3 > 2:
-                player.swingCount = 0
-                player.swingTrigger = False
-        elif player.right:
-            WIN.blit(swingRight[player.swingCount//3],
-                     (player.knightPosX, knight.y))
-            player.swingCount += 1
-            if player.swingCount//3 > 2:
-                player.swingCount = 0
-                player.swingTrigger = False
+        elif player.swingTrigger == True:
+            if player.left:
+                WIN.blit(swingLeft[player.swingCount//3],
+                         (player.knightPosX, knight.y))
+                player.swingCount += 1
+                if player.swingCount//3 > 2:
+                    player.swingCount = 0
+                    player.swingTrigger = False
+            elif player.right:
+                WIN.blit(swingRight[player.swingCount//3],
+                         (player.knightPosX, knight.y))
+                player.swingCount += 1
+                if player.swingCount//3 > 2:
+                    player.swingCount = 0
+                    player.swingTrigger = False
 
 
-    elif player.blockTrigger == True:
-        if player.right:
-            WIN.blit(knightBlock1_right, (player.knightPosX, knight.y))
-        elif player.left:
-            WIN.blit(knightBlock1_left, (player.knightPosX, knight.y))
-        #blockTrigger = False
-        #print(blockTrigger, "b")
+        elif player.blockTrigger == True:
+            if player.right:
+                WIN.blit(knightBlock1_right, (player.knightPosX, knight.y))
+            elif player.left:
+                WIN.blit(knightBlock1_left, (player.knightPosX, knight.y))
+            #blockTrigger = False
+            #print(blockTrigger, "b")
 
-    elif player.still:
-        if player.right:
-            WIN.blit(walkRight[0], (player.knightPosX, knight.y))
-        elif player.left:
-            WIN.blit(walkLeft[0], (player.knightPosX, knight.y))
+        elif player.still:
+            if player.right:
+                WIN.blit(walkRight[0], (player.knightPosX, knight.y))
+            elif player.left:
+                WIN.blit(walkLeft[0], (player.knightPosX, knight.y))
 
-    if pygame.key.get_pressed()[pygame.K_SPACE] and player.jumping == False:
-        pass
+        if pygame.key.get_pressed()[pygame.K_SPACE] and player.jumping == False:
+            pass
+
+    elif player.hasBow:
+        WIN.blit(knightBow1_right, (player.knightPosX, knight.y))
+
+
+
 
     WIN.blit(FLOOR1_IMAGE_SCALED,
              (rel_x - FLOOR1_IMAGE_SCALED.get_rect().width, 130))
@@ -632,7 +650,7 @@ def draw_window(line):
     healthtext = myfont.render(f"spikesRect.x: {spikesRect.x} spikesRect.y: {spikesRect.y} spikesX; {player.spikesX} b_spike: {b_spike} e_spike: {e_spike}", False, (0, 0, 0))
     positiontext = myfont.render(f"stagePosx: {player.stagePosX} Playerposx: {player.playerPosX} KnightPosX: {player.knightPosX} EnemyPosX: {enemy.enemyPosX} knight.y: {knight.y}", False, (0, 0, 0))
     collidetext = myfont.render(f"spikesTopRect.x: {spikesTopRect.x} spikesTopRect.y: {spikesTopRect.y}", False, (0,0,0))
-    arrowtext = myfont.render(f"arrowX {arrow.x} arrowy {arrow.y} arrow.radius: {arrow.radius}", False, (0,0,0))
+    arrowtext = myfont.render(f"arrowX {arrow.x} arrowy {arrow.y} arrow.radius: {arrow.radius} bowActive {player.bowActive}", False, (0,0,0))
     # WIN.blit(collidetext, (0,100))
     # WIN.blit(positiontext, (0,200))
     WIN.blit(arrowtext, (0, 100))
@@ -653,7 +671,8 @@ def draw_window(line):
     text_height = deathtext.get_height()
 
     WIN.blit(platform, (player.platformX, 300, 100, 10))
-    WIN.blit(bow, (player.platformX - 10, 220, 100, 100))
+    if not player.bowActive:
+        WIN.blit(bow, (player.platformX - 10, 220, 100, 100))
     if player.arrowShow:
         WIN.blit(arrowImage, (arrow.x-35, arrow.y-35, 10, 10))
 
