@@ -4,7 +4,7 @@ import time
 import math
 
 '''
-HOMEWORK SECTION
+HOMEWORK SECTION design character animations with bow, draw sword for hotbar, create array
 '''
 
 # Screen Settings
@@ -84,7 +84,6 @@ class Player(Character):
         self.hasBow = False
         self.bowActive = False
         Character.__init__(self)
-
 
 class Enemy(Character):
     def __init__(self):
@@ -378,6 +377,8 @@ def main():
     run = True
     clock = pygame.time.Clock()
     while run:
+        Hotbar = [True, False]
+        if
         if shoot:
             if arrow.y < 500-FLOOR.height - arrow.radius:
                 player.arrowShow = True
@@ -442,6 +443,9 @@ def main():
                     player.blockTrigger = True
                     # handle_block(blockTrigger)
                     #print("blocktrigger", blockTrigger)
+
+
+
 
             else:
                 player.blockTrigger = False
@@ -681,8 +685,17 @@ def draw_window(line):
         WIN.blit(deathtext, (WIDTH/2 - text_width/2, HEIGHT/2 - text_height/2))
 
     pygame.draw.rect(WIN, (0,0,0), (player.arrowX, player.arrowY, 100, 10))
+    if not player.hasBow:
+        pygame.draw.rect(WIN, (156, 152, 142), (WIDTH/2 - 40, HEIGHT - 45, 40, 40))
+        pygame.draw.rect(WIN, (130, 127, 118), (WIDTH/2 - 40, HEIGHT - 45, 40, 40), 3)
+    if player.hasBow:
+        pygame.draw.rect(WIN, (156, 152, 142), (WIDTH/2 - 70, HEIGHT - 45, 40, 40))
+        pygame.draw.rect(WIN, (130, 127, 118), (WIDTH/2 - 70, HEIGHT - 45, 40, 40), 3)
 
-
+        pygame.draw.rect(WIN, (156, 152, 142), (WIDTH/2 - 10, HEIGHT - 45, 40, 40))
+        pygame.draw.rect(WIN, (130, 127, 118), (WIDTH/2 - 10, HEIGHT - 45, 40, 40), 3)
+        bowScaled = pygame.transform.scale(bow, (70, 70))
+        WIN.blit(bowScaled, (WIDTH/2 - 37, HEIGHT - 60, 40, 40))
 
 if __name__ == "__main__":
     main()
