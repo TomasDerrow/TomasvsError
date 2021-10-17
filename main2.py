@@ -83,6 +83,7 @@ class Player(Character):
         self.arrowShow = False
         self.hasBow = False
         self.bowActive = False
+        self.swordActive = True
         Character.__init__(self)
 
 class Enemy(Character):
@@ -188,6 +189,7 @@ platform = player.loadImage('Assets', 'Platform.png', 100, 100)
 spikes = player.loadImage('Assets', 'Spikes.png', 100, 100)
 bow = player.loadImage('Assets', 'bow.png', 100, 100)
 arrowImage = player.loadImage('Assets', 'Arrow.png', 70, 70)
+sword = player.loadImage('Assets', 'Sword.png', 100, 100)
 # Rectangles defined
 '''
 TODO: Can be defined in our loadImage method, may need to change though
@@ -377,10 +379,25 @@ def main():
     run = True
     clock = pygame.time.Clock()
     while run:
-        Hotbar = [True, False]
-        if
+        if player.hasBow:
+            # Hotbar = [True, False]
+            if pygame.key.get_pressed()[pygame.K_1]:
+                # Hotbar[0] = True
+                # Hotbar[1] = False
+                player.bowActive = False
+                player.swordActive = True
+            if pygame.key.get_pressed()[pygame.K_2]:
+                # Hotbar[0] = False
+                # Hotbar[1] = True
+                player.bowActive = True
+                player.swordActive = False
+
+            # if Hotbar[0]:
+            #     player.bowActive = False
+            # elif Hotbar[1]:
+            #     player.bowActive = True
         if shoot:
-            if arrow.y < 500-FLOOR.height - arrow.radius:
+            if arrow.y < 500-FLOOR.height - arrow.radius and arrow.y > 0 and arrow.x > 0:
                 player.arrowShow = True
                 time += 0.05
                 po = Arrow.arrowpath(arrow_x, arrow_y, power, angle, time)
@@ -480,7 +497,6 @@ def findAngle(pos):
 def handle_objects():
     if player.knightrect.colliderect(bowRect):
         player.hasBow = True
-        player.bowActive = True
 
     if player.knightrect.colliderect(platformRect):
         knight.y = 235
@@ -579,7 +595,7 @@ def draw_window(line):
     # pygame.draw.rect(WIN, (0,0,0), pygame.Rect(b_spike, 383, 5, spikesRect.height))
     # pygame.draw.rect(WIN, (0,0,0), pygame.Rect(e_spike, 383, 5, spikesRect.height))
     # pygame.draw.rect(WIN, (0,0,0), pygame.Rect(player.spikesX, 383, 80, 5))
-    if player.hasBow == False:
+    if player.swordActive:
         if player.walkCount + 1 >= 30:
             player.walkCount = 0
 
@@ -627,7 +643,7 @@ def draw_window(line):
         if pygame.key.get_pressed()[pygame.K_SPACE] and player.jumping == False:
             pass
 
-    elif player.hasBow:
+    elif player.bowActive:
         WIN.blit(knightBow1_right, (player.knightPosX, knight.y))
 
 
@@ -675,7 +691,7 @@ def draw_window(line):
     text_height = deathtext.get_height()
 
     WIN.blit(platform, (player.platformX, 300, 100, 10))
-    if not player.bowActive:
+    if not player.hasBow:
         WIN.blit(bow, (player.platformX - 10, 220, 100, 100))
     if player.arrowShow:
         WIN.blit(arrowImage, (arrow.x-35, arrow.y-35, 10, 10))
@@ -687,15 +703,25 @@ def draw_window(line):
     pygame.draw.rect(WIN, (0,0,0), (player.arrowX, player.arrowY, 100, 10))
     if not player.hasBow:
         pygame.draw.rect(WIN, (156, 152, 142), (WIDTH/2 - 40, HEIGHT - 45, 40, 40))
-        pygame.draw.rect(WIN, (130, 127, 118), (WIDTH/2 - 40, HEIGHT - 45, 40, 40), 3)
+        pygame.draw.rect(WIN, (217, 211, 210), (WIDTH/2 - 40, HEIGHT - 45, 40, 40), 3)
+        swordScaled = pygame.transform.scale(sword, (210, 210))
+        WIN.blit(swordScaled, (WIDTH/2 - 30, HEIGHT - 42, 40, 40))
     if player.hasBow:
         pygame.draw.rect(WIN, (156, 152, 142), (WIDTH/2 - 70, HEIGHT - 45, 40, 40))
-        pygame.draw.rect(WIN, (130, 127, 118), (WIDTH/2 - 70, HEIGHT - 45, 40, 40), 3)
+        if player.bowActive:
+            pygame.draw.rect(WIN, (130, 127, 118), (WIDTH/2 - 70, HEIGHT - 45, 40, 40), 3)
+        elif player.swordActive:
+            pygame.draw.rect(WIN, (217, 211, 210), (WIDTH/2 - 70, HEIGHT - 45, 40, 40), 3)
 
         pygame.draw.rect(WIN, (156, 152, 142), (WIDTH/2 - 10, HEIGHT - 45, 40, 40))
-        pygame.draw.rect(WIN, (130, 127, 118), (WIDTH/2 - 10, HEIGHT - 45, 40, 40), 3)
+        if player.bowActive:
+            pygame.draw.rect(WIN, (217, 211, 210), (WIDTH/2 - 10, HEIGHT - 45, 40, 40), 3)
+        elif player.swordActive:
+            pygame.draw.rect(WIN, (156, 152, 142), (WIDTH/2 - 10, HEIGHT - 45, 40, 40), 3)
         bowScaled = pygame.transform.scale(bow, (70, 70))
         WIN.blit(bowScaled, (WIDTH/2 - 37, HEIGHT - 60, 40, 40))
+        swordScaled = pygame.transform.scale(sword, (210, 210))
+        WIN.blit(swordScaled, (WIDTH/2 - 59, HEIGHT - 42, 40, 40))
 
 if __name__ == "__main__":
     main()
