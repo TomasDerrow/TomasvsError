@@ -4,7 +4,7 @@ import time
 import math
 
 '''
-HOMEWORK SECTION design character animations with bow, draw sword for hotbar, create array
+HOMEWORK SECTION design character animations with bow, fix power, see if you can shoot multiple arrows, look into pools in skype 
 '''
 
 # Screen Settings
@@ -190,6 +190,7 @@ spikes = player.loadImage('Assets', 'Spikes.png', 100, 100)
 bow = player.loadImage('Assets', 'bow.png', 100, 100)
 arrowImage = player.loadImage('Assets', 'Arrow.png', 70, 70)
 sword = player.loadImage('Assets', 'Sword.png', 100, 100)
+
 # Rectangles defined
 '''
 TODO: Can be defined in our loadImage method, may need to change though
@@ -209,6 +210,8 @@ enemyRange = pygame.Rect(enemyKnight.x, enemyKnight.y, 500, 200)
 
 spikesRect = pygame.Rect(player.spikesX, 300, 80, 100)
 bowRect = pygame.Rect(player.platformX - 10, 220, 100, 100)
+arrow = Arrow(0, 0, 5, (255,255,255))
+
 
 global b_spike
 b_spike = spikesRect.x
@@ -221,9 +224,9 @@ spikesTopRect = pygame.Rect(player.spikesX + 5, 383, 75, 5)
 #80
 platformRect = pygame.Rect(player.platformX, 300, 100, 10)
 
-arrowRect = pygame.Rect(player.arrowX, player.arrowY, 100, 10)
-arrow = Arrow(300, 444, 5, (255,255,255))
-print(FLOOR.height)
+
+
+
 Character_Movements = [
     pygame.image.load(os.path.join('Assets', 'Default_Character1N.png')),
     pygame.image.load(os.path.join(
@@ -410,14 +413,12 @@ def main():
                 # print("here")
                 player.arrowShow = False
                 shoot = False
-                time = 0
-                print("asdas")
-                # arrow.x = player.knightPosX
+                time = 0                # arrow.x = player.knightPosX
                 # arrow.y = knight.y
 
 
 
-        line = [(arrow.x, arrow.y), pygame.mouse.get_pos()]
+        line = [(player.knightPosX, knight.y), pygame.mouse.get_pos()]
         # arrow.draw(WIN)
         # pygame.draw.line(WIN, (0,0,0), line[0], line[1])
         '''
@@ -450,7 +451,8 @@ def main():
                     arrow_y = arrow.y
                     pos = pygame.mouse.get_pos()
                     shoot = True
-                    power = math.sqrt((line[1][1] - line[0][1])**2 + (line[1][0] - line[0][1])**2)/4
+                    power = math.sqrt((line[1][1] - line[0][1])**2 + (line[1][0] - line[0][1])**2)/3
+                    #(mouse.y) - (arrow.y)^2 + (mouse.x) - (arrow.x)^2
                     angle = findAngle(pos)
                     #swingCount += 1
                     # handle_swing(swingTrigger)
@@ -523,7 +525,9 @@ def handle_objects():
 
 def handle_damage():
     global enemyKnight
-
+    if arrowRect.colliderect(enemyKnight):
+        enemy.health -= 1
+        print("hit")
     if player.knightrect.colliderect(enemyKnight) and not player.blockTrigger:
         ticks = pygame.time.get_ticks()
         if ticks%13 == 0 and enemy.enemy_swinging:
@@ -547,8 +551,9 @@ def handle_damage():
                         player.health -= 1
                         enemy.enemy_swinging = False
 
-    if enemyKnight.colliderect(player.knightrect) and player.swingTrigger:
+    if enemyKnight.colliderect(player.knightrect) and player.swingTrigger and player.swordActive:
         enemy.health -= 1
+        print("1")
 
     # if enemyKnight.colliderect(player.knightrect):
     #     enemy.enemy_swinging = True
@@ -670,10 +675,14 @@ def draw_window(line):
     healthtext = myfont.render(f"spikesRect.x: {spikesRect.x} spikesRect.y: {spikesRect.y} spikesX; {player.spikesX} b_spike: {b_spike} e_spike: {e_spike}", False, (0, 0, 0))
     positiontext = myfont.render(f"stagePosx: {player.stagePosX} Playerposx: {player.playerPosX} KnightPosX: {player.knightPosX} EnemyPosX: {enemy.enemyPosX} knight.y: {knight.y}", False, (0, 0, 0))
     collidetext = myfont.render(f"spikesTopRect.x: {spikesTopRect.x} spikesTopRect.y: {spikesTopRect.y}", False, (0,0,0))
-    arrowtext = myfont.render(f"arrowX {arrow.x} arrowy {arrow.y} arrow.radius: {arrow.radius} bowActive {player.bowActive}", False, (0,0,0))
+    arrowtext = myfont.render(f"arrow.x {arrow.x} arrow.y {arrow.y} power: {(((pygame.mouse.get_pos()[1]) - (knight.y))**2 + ((pygame.mouse.get_pos()[0]) - (player.knightPosX))**2)/8}", False, (0,0,0))
+    global arrowRect
+    arrowRect = pygame.Rect(arrow.x, arrow.y, 100, 10)
+
     # WIN.blit(collidetext, (0,100))
     # WIN.blit(positiontext, (0,200))
     WIN.blit(arrowtext, (0, 100))
+    WIN.blit(positiontext, (0, 200))
     pygame.font.init()
     myfont2 = pygame.font.SysFont('Comic Sans MS', 30)
     #enemyhitbox = myfont2.render("enemy.x: " + str(enemyKnight.x) + " enemy.y: " + str(enemyKnight.y) + " knightrect.x " + str(knightrect.x) + " knightrect.y " + str(knightrect.y), False, (0, 0, 0))
@@ -700,7 +709,7 @@ def draw_window(line):
         pygame.draw.rect(WIN, (0, 0, 0), (0, 0, WIDTH, HEIGHT))
         WIN.blit(deathtext, (WIDTH/2 - text_width/2, HEIGHT/2 - text_height/2))
 
-    pygame.draw.rect(WIN, (0,0,0), (player.arrowX, player.arrowY, 100, 10))
+    # pygame.draw.rect(WIN, (0,0,0), (player.arrowX, player.arrowY, 100, 10))
     if not player.hasBow:
         pygame.draw.rect(WIN, (156, 152, 142), (WIDTH/2 - 40, HEIGHT - 45, 40, 40))
         pygame.draw.rect(WIN, (217, 211, 210), (WIDTH/2 - 40, HEIGHT - 45, 40, 40), 3)
