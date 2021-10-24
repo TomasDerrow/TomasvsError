@@ -4,7 +4,7 @@ import time
 import math
 
 '''
-HOMEWORK SECTION design character animations with bow, fix power, see if you can shoot multiple arrows, look into pools in skype 
+HOMEWORK SECTION design character animations with bow, fix power, see if you can shoot multiple arrows, look into pools in skype
 '''
 
 # Screen Settings
@@ -49,6 +49,7 @@ class Character(object):
         self.swingCount = 0
         self.swingTrigger = False
         self.blockTrigger = False
+        self.shootTrigger = False
         self.swinging = False
         self.blocking = False
         self.jumping = False
@@ -84,6 +85,7 @@ class Player(Character):
         self.hasBow = False
         self.bowActive = False
         self.swordActive = True
+
         Character.__init__(self)
 
 class Enemy(Character):
@@ -180,8 +182,29 @@ knightBlock1_left = player.loadImage(
     'Assets', 'Default_Character_Block_Flipped1.png', player.knight_width, player.knight_height)
 
 knightBow1_right = player.loadImage(
-    'Assets', 'Default_Character_Bow.png', player.knight_width, player.knight_height
-)
+    'Assets', 'Default_Character_Bow1.png', player.knight_width, player.knight_height)
+knightBow2_right = player.loadImage(
+    'Assets', 'Default_Character_Bow2.png', player.knight_width, player.knight_height)
+knightBow3_right = player.loadImage(
+    'Assets', 'Default_Character_Bow3.png', player.knight_width, player.knight_height)
+knightBow4_right = player.loadImage(
+    'Assets', 'Default_Character_Bow4.png', player.knight_width, player.knight_height)
+
+knightBow1_left = player.loadImage(
+    'Assets', 'Default_Character_Bow_Flipped1.png', player.knight_width, player.knight_height)
+knightBow2_left = player.loadImage(
+    'Assets', 'Default_Character_Bow_Flipped2.png', player.knight_width, player.knight_height)
+knightBow3_left = player.loadImage(
+    'Assets', 'Default_Character_Bow_Flipped3.png', player.knight_width, player.knight_height)
+knightBow4_left = player.loadImage(
+    'Assets', 'Default_Character_Bow_Flipped4.png', player.knight_width, player.knight_height)
+
+knightShoot_right = player.loadImage(
+    'Assets', 'Default_Character_Shoot1.png', player.knight_width, player.knight_height)
+
+knightShoot_left = player.loadImage(
+    'Assets', 'Default_Character_Shoot_Flipped1.png', player.knight_width, player.knight_height)
+
 
 enemy1_right = enemy.loadImage('Assets', 'enemy.png', 100, 100)
 
@@ -237,6 +260,9 @@ Character_Movements = [
 # Lists defined
 walkLeft = [knight1_left, knight2_left, knight3_left, knight4_left]
 walkRight = [knight1_right, knight2_right, knight3_right, knight4_right]
+
+walkLeftBow =[knightBow1_left, knightBow2_left, knightBow3_left, knightBow4_left]
+walkRightBow = [knightBow1_right, knightBow2_right, knightBow3_right, knightBow4_right]
 
 swingLeft = [knightSwing1_left, knightSwing2_left, knightSwing3_left]
 swingRight = [knightSwing1_right, knightSwing2_right, knightSwing3_right]
@@ -411,6 +437,7 @@ def main():
 
             else:
                 # print("here")
+                player.swingTrigger = False
                 player.arrowShow = False
                 shoot = False
                 time = 0                # arrow.x = player.knightPosX
@@ -445,6 +472,7 @@ def main():
                     player.swinging = True
                     player.swingTrigger = True
                 if shoot == False and player.bowActive:
+                    player.shootTrigger = True
                     arrow.x = player.knightPosX + 20
                     arrow.y = knight.y + 50
                     arrow_x = arrow.x
@@ -648,8 +676,38 @@ def draw_window(line):
         if pygame.key.get_pressed()[pygame.K_SPACE] and player.jumping == False:
             pass
 
+####################################################################################
+
     elif player.bowActive:
-        WIN.blit(knightBow1_right, (player.knightPosX, knight.y))
+        if player.walkCount + 1 >= 30:
+            player.walkCount = 0
+
+        if not(player.still):
+            if player.left:
+                WIN.blit(walkLeftBow[player.walkCount//10],
+                         (player.knightPosX, knight.y))
+                player.walkCount += 1
+            elif player.right:
+                WIN.blit(walkRightBow[player.walkCount//10],
+                         (player.knightPosX, knight.y))
+                player.walkCount += 1
+
+        elif player.swingTrigger == True:
+            if player.left:
+                WIN.blit(knightShoot_left, (player.knightPosX, knight.y))
+
+            elif player.right:
+                WIN.blit(knightShoot_right, (player.knightPosX, knight.y))
+
+
+        elif player.still:
+            if player.right:
+                WIN.blit(walkRightBow[0], (player.knightPosX, knight.y))
+            elif player.left:
+                WIN.blit(walkLeftBow[0], (player.knightPosX, knight.y))
+
+        if pygame.key.get_pressed()[pygame.K_SPACE] and player.jumping == False:
+            pass
 
 
 
