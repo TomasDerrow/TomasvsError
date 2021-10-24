@@ -26,10 +26,6 @@ bgWidth, bgHeight = BACKGROUND_IMAGE_SCALED.get_rect().size
 stageWidth = bgWidth*2
 startScrollingPosX = (WIDTH / 2)
 
-
-# Scrolling Background
-# TODO: be more descriptive with variable names
-#       scrolling_bg_x
 global x
 x = 0
 
@@ -42,7 +38,7 @@ angle = 0
 global shoot
 shoot = False
 
-
+#classes
 class Character(object):
     def __init__(self):
         self.walkCount = 0
@@ -99,6 +95,10 @@ class Enemy(Character):
         self.enemyPosX = WIDTH/2 - self.enemy_width
         Character.__init__(self)
 
+    def setEnemyPosX(self, num):
+        self.enemyPosX = num
+    def getEnemyPosX(self):
+        return self.enemyPosX
 class Arrow():
     def __init__(self, x, y, radius, color):
         self.x = x
@@ -120,27 +120,15 @@ class Arrow():
         distY = (velY * time) + ((-4.9 * (time)**2) / 2)
 
         newX = round(distX + startX)
-        # print("x:", newX)
         newY = round(startY - distY)
-        # print("y:", newY)
         return(newX, newY)
 
-# print statements for testing
 player = Player()
-# print("player")
-# print(player.walkCount)
-# print(player.playerPosX)
-# print("------------------------------")
 enemy = Enemy()
-# print("enemy")
-# print(enemy.walkCount)
-# print(enemy.at500)
-#
-# player.playerPosX += 100
-# print(player.playerPosX)
+enemy2 = Enemy()
+enemy2.setEnemyPosX(700)
 
-# loadimages
-
+#import images
 tree = player.loadImage(
 'Assets', 'Tree.png', 130, 150)
 knight1_right = player.loadImage(
@@ -215,11 +203,6 @@ arrowImage = player.loadImage('Assets', 'Arrow.png', 70, 70)
 sword = player.loadImage('Assets', 'Sword.png', 100, 100)
 
 # Rectangles defined
-'''
-TODO: Can be defined in our loadImage method, may need to change though
-'''
-
-
 knightRect = pygame.Rect(player.knightPosX, 0,
                          player.knight_width, player.knight_height)
 knight = pygame.Rect(WIDTH/2 - player.knight_width, 450-player.knight_height,
@@ -228,8 +211,12 @@ knight = pygame.Rect(WIDTH/2 - player.knight_width, 450-player.knight_height,
 enemyKnight = pygame.Rect(enemy.enemyPosX, HEIGHT-FLOOR.height -
                           enemy.enemy_height, enemy.enemy_width, enemy.enemy_height)
 
+enemyKnight2 = pygame.Rect(enemy2.enemyPosX, HEIGHT-FLOOR.height -
+                          enemy2.enemy_height, enemy2.enemy_width, enemy2.enemy_height)
+
 
 enemyRange = pygame.Rect(enemyKnight.x, enemyKnight.y, 500, 200)
+enemyRange2 = pygame.Rect(enemyKnight2.x, enemyKnight2.y, 500, 200)
 
 spikesRect = pygame.Rect(player.spikesX, 300, 80, 100)
 bowRect = pygame.Rect(player.platformX - 10, 220, 100, 100)
@@ -244,18 +231,7 @@ e_spike = spikesRect.x + 80
 spikesStartRect = pygame.Rect(b_spike, 383, 5, spikesRect.height)
 spikesEndRect = pygame.Rect(e_spike, 383, 5, spikesRect.height)
 spikesTopRect = pygame.Rect(player.spikesX + 5, 383, 75, 5)
-#80
 platformRect = pygame.Rect(player.platformX, 300, 100, 10)
-
-
-
-
-Character_Movements = [
-    pygame.image.load(os.path.join('Assets', 'Default_Character1N.png')),
-    pygame.image.load(os.path.join(
-        'Assets', 'Default_Character_Flipped1.png')),
-    pygame.image.load(os.path.join('Assets', 'Default_Character2.png'))]
-
 
 # Lists defined
 walkLeft = [knight1_left, knight2_left, knight3_left, knight4_left]
@@ -268,13 +244,9 @@ swingLeft = [knightSwing1_left, knightSwing2_left, knightSwing3_left]
 swingRight = [knightSwing1_right, knightSwing2_right, knightSwing3_right]
 
 # functions
-
 def handle_movement(keys_pressed, knight):
     global b_spike
     global e_spike
-    '''
-    TODO: Add comments near if statements describing what is happening
-    '''
 
     if pygame.key.get_pressed()[pygame.K_a] and not player.beingStoppedLeft:
         player.velocity = -5
@@ -303,7 +275,6 @@ def handle_movement(keys_pressed, knight):
             neg = 1
             if player.jumpCount <= 0:
                 neg = -1
-            # knight.y -= (player.jumpCount ** 2) * 0.5 * neg
             knight.y -= (player.jumpCount ** 2) * 0.5 * neg
             player.jumpCount -= 1
         else:
@@ -311,13 +282,6 @@ def handle_movement(keys_pressed, knight):
             player.jumpCount = 10
             knight.y += 5
 
-    # 1234
-#jumpcount = 10, 9, 8, 7
-#knight.y = 100, 140.5, 172.5, 197
-
-
-
-# 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5, -6, -7 -8, -9, -10
     player.playerPosX += player.velocity
 
     if player.playerPosX > stageWidth:
@@ -330,12 +294,10 @@ def handle_movement(keys_pressed, knight):
 
     if player.playerPosX < startScrollingPosX - knight.width:
         player.knightPosX = player.playerPosX
-        # enemy.enemyPosX = enemyKnight.x
         # if the screen doesn't need to scroll then the knight can move freely
 
     elif player.playerPosX > stageWidth - startScrollingPosX:
         player.knightPosX = player.playerPosX - stageWidth + WIDTH - knight.width
-        # enemy.enemyPosX = enemyKnight.x - stageWidth + WIDTH - enemy.enemy_width
         # if you make it to the end you can walk normally
     else:
         player.knightPosX = startScrollingPosX - knight.width
@@ -350,58 +312,29 @@ def handle_movement(keys_pressed, knight):
         spikesStartRect.x -= player.velocity
         spikesEndRect.x -= player.velocity
         spikesTopRect.x -= player.velocity
+        enemyKnight2.x -= player.velocity
 
         #middle boundary
 
     player.knightrect = pygame.Rect(
         player.knightPosX, knight.y, player.knight_width, player.knight_height)
 
-# ####################################################################
-#
-# player.playerPosX += player.velocity
-#
-# if player.playerPosX > stageWidth:
-#     player.playerPosX = stageWidth
-#     # makes right boundary
-#
-# if player.playerPosX < 0:
-#     player.playerPosX = 0
-#     # makes left boundary
-# if player.playerPosX < startScrollingPosX - knight.width:
-#     player.knightPosX = player.playerPosX
-#     # if the screen doesn't need to scroll then the knight can move freely
-# elif player.playerPosX > stageWidth - startScrollingPosX:
-#     player.knightPosX = player.playerPosX - stageWidth + WIDTH - knight.width
-#     #playerPosX = stageWidth + WIDTH
-#     # right boundary
-# else:
-#     #playerPosX = startScrollingPosX - knight.width
-#     player.knightPosX = startScrollingPosX - knight.width
-#     player.stagePosX += player.velocity
-#
-# player.knightrect = pygame.Rect(
-#     player.knightPosX, knight.y, player.knight_width, player.knight_height)
-#
-# #######################################################
 
 def moveAutomatically(b_range, e_range, velocity = 2):
-
     if player.knightPosX + knight.width > b_range and player.knightPosX < e_range:
         if player.knightPosX > enemyKnight.x:
             enemyKnight.x += velocity
         elif player.knightPosX < enemyKnight.x:
             enemyKnight.x -= velocity
-    # else:
-    #     if enemy.enemy_left:
-    #         if enemyKnight.x < 0:
-    #             enemy.enemy_right = True
-    #             enemy.enemy_left = False
-    #         enemyKnight.x -= velocity
-    #     elif enemy.enemy_right:
-    #         if enemyKnight.x > WIDTH - enemy.enemy_width:
-    #             enemy.enemy_left = True
-    #             enemy.enemy_right = False
-    #         enemyKnight.x += velocity
+#if player in range enemy follows
+def moveAutomatically2(b_range2, e_range2, velocity = 2):
+    if player.knightPosX + knight.width > b_range2 and player.knightPosX < e_range2:
+        if player.knightPosX > enemyKnight2.x:
+            enemyKnight2.x += velocity
+        elif player.knightPosX < enemyKnight2.x:
+            enemyKnight2.x -= velocity
+#if player in range enemy follows
+
 def main():
     global shoot
     global time
@@ -409,57 +342,28 @@ def main():
     clock = pygame.time.Clock()
     while run:
         if player.hasBow:
-            # Hotbar = [True, False]
             if pygame.key.get_pressed()[pygame.K_1]:
-                # Hotbar[0] = True
-                # Hotbar[1] = False
                 player.bowActive = False
                 player.swordActive = True
             if pygame.key.get_pressed()[pygame.K_2]:
-                # Hotbar[0] = False
-                # Hotbar[1] = True
                 player.bowActive = True
                 player.swordActive = False
-
-            # if Hotbar[0]:
-            #     player.bowActive = False
-            # elif Hotbar[1]:
-            #     player.bowActive = True
         if shoot:
             if arrow.y < 500-FLOOR.height - arrow.radius and arrow.y > 0 and arrow.x > 0:
                 player.arrowShow = True
                 time += 0.05
                 po = Arrow.arrowpath(arrow_x, arrow_y, power, angle, time)
                 arrow.x = po[0]
-
-                # print(po[0])
                 arrow.y = po[1]
 
             else:
-                # print("here")
                 player.swingTrigger = False
                 player.arrowShow = False
+                arrow.y = 5000
                 shoot = False
-                time = 0                # arrow.x = player.knightPosX
-                # arrow.y = knight.y
-
-
+                time = 0
 
         line = [(player.knightPosX, knight.y), pygame.mouse.get_pos()]
-        # arrow.draw(WIN)
-        # pygame.draw.line(WIN, (0,0,0), line[0], line[1])
-        '''
-        TODO: can you think of another place to move these if statements?
-             May need to move
-        '''
-        #if knight.y > HEIGHT - FLOOR.height - player.knight_height:
-            # checking if knight is on ground
-            #player.jumping = False
-        #if knight.y < HEIGHT - FLOOR.height - player.knight_height:
-            # if knight is on ground dont apply gravity
-            #knight.y += 5
-
-            #print(HEIGHT - FLOOR.y)
         clock.tick(FPS)
 
         # Update display each frame
@@ -480,23 +384,13 @@ def main():
                     pos = pygame.mouse.get_pos()
                     shoot = True
                     power = math.sqrt((line[1][1] - line[0][1])**2 + (line[1][0] - line[0][1])**2)/3
-                    #(mouse.y) - (arrow.y)^2 + (mouse.x) - (arrow.x)^2
                     angle = findAngle(pos)
-                    #swingCount += 1
-                    # handle_swing(swingTrigger)
-                    #print("swingtrigger", swingTrigger)
                 if event.button == 3:
                     player.blocking = True
                     player.blockTrigger = True
-                    # handle_block(blockTrigger)
-                    #print("blocktrigger", blockTrigger)
-
-
-
 
             else:
                 player.blockTrigger = False
-
 
         keys_pressed = pygame.key.get_pressed()
         draw_window(line)
@@ -530,6 +424,7 @@ def handle_objects():
 
     if player.knightrect.colliderect(platformRect):
         knight.y = 235
+        #if player is on platform he stays on it
     elif not player.jumping:
         if knight.y < HEIGHT-FLOOR.height:
             knight.y == HEIGHT-FLOOR.height
@@ -553,26 +448,20 @@ def handle_objects():
 
 def handle_damage():
     global enemyKnight
-    if arrowRect.colliderect(enemyKnight):
-        enemy.health -= 1
-        print("hit")
+    if arrowRect.colliderect(enemyKnight2):
+        enemy2.health -= 2
     if player.knightrect.colliderect(enemyKnight) and not player.blockTrigger:
         ticks = pygame.time.get_ticks()
         if ticks%13 == 0 and enemy.enemy_swinging:
             enemy.enemy_swinging = True
             if enemy.enemy_swinging == True:
                 if enemy.enemy_left:
-
-                    # WIN.blit(swingLeft[player.swingCount//3],
-                    #          (player.knightPosX, knight.y))
                     enemy.swingCount += 1
                     if enemy.swingCount//3 > 2:
                         enemy.swingCount = 0
                         player.health -= 1
                         enemy.enemy_swinging = False
                 elif enemy.enemy_right:
-                    # WIN.blit(swingRight[player.swingCount//3],
-                    #          (player.knightPosX, knight.y))
                     enemy.swingCount += 1
                     if enemy.swingCount//3 > 2:
                         enemy.swingCount = 0
@@ -583,8 +472,6 @@ def handle_damage():
         enemy.health -= 1
         print("1")
 
-    # if enemyKnight.colliderect(player.knightrect):
-    #     enemy.enemy_swinging = True
 
     if player.health == 0:
         print("player dead")
@@ -593,12 +480,15 @@ def handle_damage():
         enemyKnight.x = 0
         enemyKnight.y = 5000
         enemy.alive = False
+    if enemy2.health == 0:
+        enemyKnight2.x = 0
+        enemyKnight2.y = 5000
+        enemy2.alive = False
+#if the player or enemy has no health they die
 
     if spikesRect.colliderect(player.knightrect) and not player.blockTrigger:
         player.health -= 0.1
-    # if spikesStartRect.colliderect(player.knightRect)
-    #     knightR
-
+        #if player touches spikes he takes damage
 def draw_window(line):
     global x
     global newX
@@ -613,21 +503,19 @@ def draw_window(line):
     if enemy.alive:
         WIN.blit(enemy1_right, (enemyKnight.x, HEIGHT - FLOOR.height - enemy.enemy_height))
         moveAutomatically(enemyKnight.x - 100 ,enemyKnight.x + enemy.enemy_width + 100)
-#qwerty
 
-
+    if enemy2.alive:
+        WIN.blit(enemy1_right, (enemyKnight2.x, HEIGHT - FLOOR.height - enemy2.enemy_height))
+        moveAutomatically2(enemyKnight2.x - 100 ,enemyKnight2.x + enemy2.enemy_width + 100)
 
     b_range = enemyKnight.x - 50
     e_range = enemyKnight.x + enemy.enemy_width + 50
-    pygame.draw.rect(WIN, (0,0,0), pygame.Rect(b_range, 0, 5, HEIGHT))
-    pygame.draw.rect(WIN, (0,0,0), pygame.Rect(e_range, 0, 5, HEIGHT))
 
-    pygame.draw.rect(WIN, (255, 52, 25), (WIDTH-210, 10, enemy.health*2, 40))
+    b_range2 = enemyKnight2.x - 50
+    e_range2 = enemyKnight2.x + enemy.enemy_width + 50
+
     pygame.draw.rect(WIN, (0,0,0), pygame.Rect(player.platformX, 300, 100, 10))
 
-    # pygame.draw.rect(WIN, (0,0,0), pygame.Rect(b_spike, 383, 5, spikesRect.height))
-    # pygame.draw.rect(WIN, (0,0,0), pygame.Rect(e_spike, 383, 5, spikesRect.height))
-    # pygame.draw.rect(WIN, (0,0,0), pygame.Rect(player.spikesX, 383, 80, 5))
     if player.swordActive:
         if player.walkCount + 1 >= 30:
             player.walkCount = 0
@@ -664,8 +552,6 @@ def draw_window(line):
                 WIN.blit(knightBlock1_right, (player.knightPosX, knight.y))
             elif player.left:
                 WIN.blit(knightBlock1_left, (player.knightPosX, knight.y))
-            #blockTrigger = False
-            #print(blockTrigger, "b")
 
         elif player.still:
             if player.right:
@@ -675,8 +561,6 @@ def draw_window(line):
 
         if pygame.key.get_pressed()[pygame.K_SPACE] and player.jumping == False:
             pass
-
-####################################################################################
 
     elif player.bowActive:
         if player.walkCount + 1 >= 30:
@@ -719,41 +603,26 @@ def draw_window(line):
 
         WIN.blit(spikes, (player.spikesX, 350))
 
-
-    '''
-    TODO: Create a separate function that displays text
-    something like
-    i.e. def renderText(text, posX, posY)
-    '''
-
     pygame.font.init()
     myfont = pygame.font.SysFont('Comic Sans MS', 20)
-    #positions = myfont.render("Playerposx: " + str(playerPosX) + " knightposx: " + str(knightPosX) + "stagePosX" + str(stagePosX), False, (0, 0, 0))
-    # WIN.blit(positions,(0,100))
     healthtext = myfont.render(f"spikesRect.x: {spikesRect.x} spikesRect.y: {spikesRect.y} spikesX; {player.spikesX} b_spike: {b_spike} e_spike: {e_spike}", False, (0, 0, 0))
     positiontext = myfont.render(f"stagePosx: {player.stagePosX} Playerposx: {player.playerPosX} KnightPosX: {player.knightPosX} EnemyPosX: {enemy.enemyPosX} knight.y: {knight.y}", False, (0, 0, 0))
     collidetext = myfont.render(f"spikesTopRect.x: {spikesTopRect.x} spikesTopRect.y: {spikesTopRect.y}", False, (0,0,0))
     arrowtext = myfont.render(f"arrow.x {arrow.x} arrow.y {arrow.y} power: {(((pygame.mouse.get_pos()[1]) - (knight.y))**2 + ((pygame.mouse.get_pos()[0]) - (player.knightPosX))**2)/8}", False, (0,0,0))
+
     global arrowRect
     arrowRect = pygame.Rect(arrow.x, arrow.y, 100, 10)
-
-    # WIN.blit(collidetext, (0,100))
-    # WIN.blit(positiontext, (0,200))
-    WIN.blit(arrowtext, (0, 100))
-    WIN.blit(positiontext, (0, 200))
     pygame.font.init()
     myfont2 = pygame.font.SysFont('Comic Sans MS', 30)
-    #enemyhitbox = myfont2.render("enemy.x: " + str(enemyKnight.x) + " enemy.y: " + str(enemyKnight.y) + " knightrect.x " + str(knightrect.x) + " knightrect.y " + str(knightrect.y), False, (0, 0, 0))
-    # WIN.blit(enemyhitbox,(0,100))
-    #healthtext = myfont.render(str(player.health), False, (0, 0, 0))
-    #WIN.blit(healthtext, (200,20))
 
     player1healthbar = pygame.draw.rect(
-        WIN, (255, 52, 25), (10, 10, player.health*2, 40))
+        WIN, (255, 52, 25), (WIDTH/2 - 100, 10, player.health*2, 40))
     enemy1healthbar = pygame.draw.rect(
-        WIN, (255, 52, 25), (WIDTH-210, 10, enemy.health*2, 40))
-    deathtext = myfont.render("You died!", False, (255, 17, 0), )
+        WIN, (255, 52, 25), (enemyKnight.x + 25, HEIGHT-FLOOR.height-enemy.enemy_height-13, enemy.health//1.3, 10))
+    enemy2healthbar = pygame.draw.rect(
+        WIN, (255, 52, 25), (enemyKnight2.x + 25, HEIGHT-FLOOR.height-enemy2.enemy_height-13, enemy2.health//1.3 , 10))
 
+    deathtext = myfont.render("You died!", False, (255, 17, 0), )
     text_width = deathtext.get_width()
     text_height = deathtext.get_height()
 
@@ -767,24 +636,28 @@ def draw_window(line):
         pygame.draw.rect(WIN, (0, 0, 0), (0, 0, WIDTH, HEIGHT))
         WIN.blit(deathtext, (WIDTH/2 - text_width/2, HEIGHT/2 - text_height/2))
 
-    # pygame.draw.rect(WIN, (0,0,0), (player.arrowX, player.arrowY, 100, 10))
     if not player.hasBow:
         pygame.draw.rect(WIN, (156, 152, 142), (WIDTH/2 - 40, HEIGHT - 45, 40, 40))
         pygame.draw.rect(WIN, (217, 211, 210), (WIDTH/2 - 40, HEIGHT - 45, 40, 40), 3)
         swordScaled = pygame.transform.scale(sword, (210, 210))
         WIN.blit(swordScaled, (WIDTH/2 - 30, HEIGHT - 42, 40, 40))
+
     if player.hasBow:
         pygame.draw.rect(WIN, (156, 152, 142), (WIDTH/2 - 70, HEIGHT - 45, 40, 40))
+
         if player.bowActive:
             pygame.draw.rect(WIN, (130, 127, 118), (WIDTH/2 - 70, HEIGHT - 45, 40, 40), 3)
+
         elif player.swordActive:
             pygame.draw.rect(WIN, (217, 211, 210), (WIDTH/2 - 70, HEIGHT - 45, 40, 40), 3)
-
         pygame.draw.rect(WIN, (156, 152, 142), (WIDTH/2 - 10, HEIGHT - 45, 40, 40))
+
         if player.bowActive:
             pygame.draw.rect(WIN, (217, 211, 210), (WIDTH/2 - 10, HEIGHT - 45, 40, 40), 3)
+
         elif player.swordActive:
             pygame.draw.rect(WIN, (156, 152, 142), (WIDTH/2 - 10, HEIGHT - 45, 40, 40), 3)
+
         bowScaled = pygame.transform.scale(bow, (70, 70))
         WIN.blit(bowScaled, (WIDTH/2 - 37, HEIGHT - 60, 40, 40))
         swordScaled = pygame.transform.scale(sword, (210, 210))
